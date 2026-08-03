@@ -15,6 +15,10 @@ export default class ApiError extends Error {
     return new ApiError(401, message);
   }
 
+  static notFound(message) {
+    return new ApiError(404, message);
+  }
+
   static internal(message, options = {}) {
     return new ApiError(500, message, options);
   }

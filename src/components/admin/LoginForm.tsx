@@ -9,6 +9,7 @@ import { FcGoogle } from "react-icons/fc";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getErrorMessage } from "@/lib/api";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -35,8 +36,8 @@ export default function LoginForm() {
       alert(res.data.message);
 
       router.push("/admin/dashboard");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Login gagal");
+    } catch (error) {
+      alert(getErrorMessage(error, "Login gagal"));
     } finally {
       setLoading(false);
     }

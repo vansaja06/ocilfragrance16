@@ -5,28 +5,40 @@ import {
   Search,
   ChevronDown,
   User,
+  Menu,
 } from "lucide-react";
 
-export default function Header() {
+interface HeaderProps {
+  onOpenMenu?: () => void;
+}
+
+export default function Header({ onOpenMenu }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between">
+    <header className="flex items-center justify-between gap-4">
       {/* Kiri */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onOpenMenu}
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white transition hover:bg-neutral-100 lg:hidden"
+          aria-label="Buka menu"
+        >
+          <Menu size={19} />
+        </button>
 
-      <div>
-        <p className="text-xs uppercase tracking-[0.4em] text-neutral-500">
-          Admin Panel
-        </p>
+        <div>
+          <p className="hidden text-xs uppercase tracking-[0.4em] text-neutral-500 sm:block">
+            Admin Panel
+          </p>
 
-        <h1 className="mt-2 text-3xl font-light tracking-tight text-black lg:text-4xl">
-          Dashboard
-        </h1>
+          <h1 className="mt-2 text-3xl font-light tracking-tight text-black lg:text-4xl">
+            Dashboard
+          </h1>
+        </div>
       </div>
 
       {/* Kanan */}
-
       <div className="flex items-center gap-4">
         {/* Search */}
-
         <div className="hidden w-72 items-center gap-3 rounded-full border border-neutral-200 bg-white px-5 py-3 md:flex">
           <Search
             size={18}
@@ -41,7 +53,6 @@ export default function Header() {
         </div>
 
         {/* Notifikasi */}
-
         <button className="relative flex h-11 w-11 items-center justify-center rounded-full border border-neutral-200 bg-white transition hover:bg-neutral-100">
           <Bell
             size={19}
@@ -52,7 +63,6 @@ export default function Header() {
         </button>
 
         {/* Profil */}
-
         <button className="flex items-center gap-3 rounded-full border border-neutral-200 bg-white py-1.5 pl-1.5 pr-4 transition hover:bg-neutral-100">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black">
             <User

@@ -100,8 +100,6 @@ export default function Navbar() {
     if (!mobileMenuRef.current) return;
 
     if (mobileMenu) {
-      setOpenSearch(false);
-
       gsap.fromTo(
         mobileMenuRef.current,
         { y: -40, opacity: 0 },
@@ -111,6 +109,7 @@ export default function Navbar() {
           duration: 0.45,
           ease: "power3.out",
           pointerEvents: "auto",
+          onComplete: () => setOpenSearch(false),
         },
       );
     } else {
