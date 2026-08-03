@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-
 import { connectDB } from "@/lib/mongodb";
+import Admin from "@/models/Admin";
 import { comparePassword } from "@/lib/bcrypt";
 import { signToken } from "@/lib/jwt";
-import Admin from "@/models/Admin";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
@@ -21,9 +20,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const valid = await comparePassword(password, admin.password);
+    const isMatch = await comparePassword(password, admin.password);
 
-    if (!valid) {
+    if (!isMatch) {
       return NextResponse.json(
         { message: "Password salah" },
         { status: 401 }
@@ -33,35 +32,28 @@ export async function POST(req: Request) {
     const token = signToken({
       id: admin._id,
       email: admin.email,
+      role: "admin",
     });
 
     const cookieStore = await cookies();
 
     cookieStore.set("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/",
       maxAge: 60 * 60 * 24 * 7,
+      path: "/",
     });
 
     return NextResponse.json({
-      success: true,
-      admin: {
-        name: admin.name,
-        email: admin.email,
-      },
+      message: "Login berhasil",
     });
   } catch (error) {
     console.log(error);
 
     return NextResponse.json(
-      {
-        message: "Server Error",
-      },
-      {
-        status: 500,
-      }
+      { message: "Server Error" },
+      { status: 500 }
     );
   }
 }
