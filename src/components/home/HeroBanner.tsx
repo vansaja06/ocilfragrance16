@@ -8,32 +8,34 @@ const banners = [
   {
     id: 1,
     image:
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop",
-    subtitle: "eXfr Collection",
-    title: "Jackets for\nModern Man",
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2000&auto=format&fit=crop",
+    subtitle: "Ocil Fragrance",
+    title: "The Essence\nof Elegance",
     description:
-      "Discover premium collections with minimalist style and timeless fashion.",
-    button: "Shop Now",
+      "Discover an unforgettable fragrance crafted for those who embrace elegance, confidence, and timeless character.",
+    button: "Shop Collection",
   },
 
   {
     id: 2,
     image:
-      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=2000&auto=format&fit=crop",
-    subtitle: "Summer Drop",
-    title: "Streetwear\nEssentials",
-    description: "Minimalist collection designed for everyday comfort.",
-    button: "Explore",
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=2000&auto=format&fit=crop",
+    subtitle: "Signature Collection",
+    title: "Find Your\nSignature Scent",
+    description:
+      "A refined selection of fragrances designed to become part of your everyday identity.",
+    button: "Explore Scents",
   },
 
   {
     id: 3,
     image:
-      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2000&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=2000&auto=format&fit=crop",
     subtitle: "New Arrival",
-    title: "Minimal\nLifestyle",
-    description: "Premium quality with timeless modern design.",
-    button: "Discover",
+    title: "A Scent\nThat Defines You",
+    description:
+      "Experience sophisticated notes blended with modern character and lasting elegance.",
+    button: "Discover More",
   },
 ];
 
@@ -50,13 +52,15 @@ export default function HeroBanner() {
   };
 
   const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+    setCurrent((prev) =>
+      prev === 0 ? banners.length - 1 : prev - 1,
+    );
   };
 
   // Auto Slide
   useEffect(() => {
     const interval = setInterval(() => {
-      nextSlide();
+      setCurrent((prev) => (prev + 1) % banners.length);
     }, 6000);
 
     return () => clearInterval(interval);
@@ -65,6 +69,7 @@ export default function HeroBanner() {
   // GSAP Animation
   useEffect(() => {
     const tl = gsap.timeline();
+
     tl.fromTo(
       contentRef.current,
       {
@@ -77,8 +82,11 @@ export default function HeroBanner() {
         duration: 0.8,
         ease: "power3.out",
       },
-      "-=0.4",
     );
+
+    return () => {
+      tl.kill();
+    };
   }, [current]);
 
   return (
@@ -90,75 +98,93 @@ export default function HeroBanner() {
       {/* Background */}
       <img
         src={banner.image}
-        alt={banner.title}
+        alt={banner.title.replace("\n", " ")}
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/25" />
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/30" />
 
       {/* Content */}
       <div
         ref={contentRef}
         className="
-        absolute
-        inset-0
-        flex
-        items-center
-        px-6
-        sm:px-8
-        md:px-12
-        lg:px-24
+          absolute
+          inset-0
+          flex
+          items-center
+          px-6
+          sm:px-8
+          md:px-12
+          lg:px-24
         "
       >
         <div className="text-white max-w-md lg:max-w-xl">
-          <p className="uppercase tracking-[4px] md:tracking-[8px] text-xs md:text-sm mb-4 md:mb-5">
+          {/* Subtitle */}
+          <p
+            className="
+              uppercase
+              tracking-[4px]
+              md:tracking-[8px]
+              text-xs
+              md:text-sm
+              mb-4
+              md:mb-5
+              font-medium
+            "
+          >
             {banner.subtitle}
           </p>
 
+          {/* Title */}
           <h1
             className="
-            text-4xl
-            sm:text-5xl
-            md:text-6xl
-            lg:text-7xl
-            font-bold
-            leading-tight
-          "
+              text-4xl
+              sm:text-5xl
+              md:text-6xl
+              lg:text-7xl
+              font-bold
+              leading-[1.05]
+              tracking-tight
+            "
           >
             {banner.title.split("\n").map((line, index) => (
               <div key={index}>{line}</div>
             ))}
           </h1>
 
+          {/* Description */}
           <p
             className="
-            mt-5
-            text-sm
-            sm:text-base
-            md:text-lg
-            text-gray-200
-            leading-7
-            md:leading-8
-          "
+              mt-5
+              text-sm
+              sm:text-base
+              md:text-lg
+              text-gray-200
+              leading-7
+              md:leading-8
+              max-w-lg
+            "
           >
             {banner.description}
           </p>
 
+          {/* Button */}
           <button
             className="
-            mt-8
-            px-6
-            py-3
-            md:px-8
-            md:py-4
-            rounded-full
-            bg-white
-            text-black
-            font-semibold
-            hover:scale-105
-            transition-all
-            duration-300
+              mt-8
+              px-6
+              py-3
+              md:px-8
+              md:py-4
+              rounded-full
+              bg-white
+              text-black
+              font-semibold
+              hover:scale-105
+              hover:bg-gray-100
+              transition-all
+              duration-300
             "
           >
             {banner.button}
@@ -169,6 +195,7 @@ export default function HeroBanner() {
       {/* Left Button */}
       <button
         onClick={prevSlide}
+        aria-label="Previous slide"
         className="
           absolute
           top-1/2
@@ -201,31 +228,32 @@ export default function HeroBanner() {
       {/* Right Button */}
       <button
         onClick={nextSlide}
+        aria-label="Next slide"
         className="
-        absolute
-        right-3
-        md:right-8
-        top-1/2
-        -translate-y-1/2
-        w-10
-        h-10
-        md:w-16
-        md:h-16
-        rounded-full
-        border
-        border-white/30
-        bg-white/10
-        backdrop-blur-2xl
-        text-white
-        flex
-        items-center
-        justify-center
-        hover:bg-white/20
-        hover:scale-110
-        transition-all
-        duration-300
-        z-20
-      "
+          absolute
+          right-3
+          md:right-8
+          top-1/2
+          -translate-y-1/2
+          w-10
+          h-10
+          md:w-16
+          md:h-16
+          rounded-full
+          border
+          border-white/30
+          bg-white/10
+          backdrop-blur-2xl
+          text-white
+          flex
+          items-center
+          justify-center
+          hover:bg-white/20
+          hover:scale-110
+          transition-all
+          duration-300
+          z-20
+        "
       >
         <ChevronRight className="w-5 h-5 md:w-7 md:h-7" />
       </button>
@@ -233,22 +261,23 @@ export default function HeroBanner() {
       {/* Pagination */}
       <div
         className="
-        absolute
-        bottom-6
-        md:bottom-10
-        left-1/2
-        -translate-x-1/2
-        flex
-        items-center
-        gap-2
-        md:gap-3
-        z-20
+          absolute
+          bottom-6
+          md:bottom-10
+          left-1/2
+          -translate-x-1/2
+          flex
+          items-center
+          gap-2
+          md:gap-3
+          z-20
         "
       >
         {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrent(index)}
+            aria-label={`Go to slide ${index + 1}`}
             className={`h-[4px] rounded-full transition-all duration-500 ${
               current === index
                 ? "w-12 bg-white"
@@ -258,8 +287,20 @@ export default function HeroBanner() {
         ))}
       </div>
 
-      {/* Gradient bawah */}
-      <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+      {/* Bottom Gradient */}
+      <div
+        className="
+          absolute
+          bottom-0
+          left-0
+          w-full
+          h-48
+          bg-gradient-to-t
+          from-black/50
+          to-transparent
+          pointer-events-none
+        "
+      />
     </section>
   );
 }

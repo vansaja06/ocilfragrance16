@@ -1,184 +1,165 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const categories = ["Women", "Men", "Shoes", "Bags", "Accessories"];
+const categories = ["All", "Men", "Women", "Unisex", "Decant"];
 
 const products = [
   {
     id: 1,
-    category: "Women",
-    name: "Oversized Hoodie",
-    price: "$69.99",
+    category: "Men",
+    name: "Dior Sauvage Eau De Parfum",
+    price: "Rp 1.950.000",
     image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80",
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1000&q=80",
   },
   {
     id: 2,
-    category: "Men",
-    name: "Classic Bomber Jacket",
-    price: "$120.00",
+    category: "Women",
+    name: "YSL Libre",
+    price: "Rp 2.150.000",
     image:
-      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800&q=80",
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1000&q=80",
   },
   {
     id: 3,
-    category: "Shoes",
-    name: "Minimal Sneakers",
-    price: "$95.00",
+    category: "Unisex",
+    name: "Maison Francis Baccarat Rouge 540",
+    price: "Rp 4.800.000",
     image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80",
+      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1000&q=80",
   },
   {
     id: 4,
-    category: "Accessories",
-    name: "Leather Shoulder Bag",
-    price: "$85.00",
+    category: "Decant",
+    name: "Bleu De Chanel Decant 10ml",
+    price: "Rp 95.000",
     image:
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80",
+      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1000&q=80",
+  },
+  {
+    id: 5,
+    category: "Men",
+    name: "Versace Eros",
+    price: "Rp 1.550.000",
+    image:
+      "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=1000&q=80",
+  },
+
+  {
+    id: 6,
+    category: "Women",
+    name: "Chanel Coco Mademoiselle",
+    price: "Rp 2.450.000",
+    image:
+      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1000&q=80",
+  },
+
+  {
+    id: 7,
+    category: "Unisex",
+    name: "Le Labo Santal 33",
+    price: "Rp 3.950.000",
+    image:
+      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1000&q=80",
+  },
+  {
+    id: 8,
+    category: "Decant",
+    name: "Tom Ford Ombre Leather Decant 5ml",
+    price: "Rp 75.000",
+    image:
+      "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=1000&q=80",
   },
 ];
 
 export default function JustIn() {
-  const [active, setActive] = useState("Women");
+  const [active, setActive] = useState("All");
+
+  const filteredProducts = useMemo(() => {
+    if (active === "All") return products;
+
+    return products.filter((product) => product.category === active);
+  }, [active]);
 
   return (
-    <section
-      id="just-in"
-      className="bg-white py-16 md:py-24 lg:py-28"
-    >
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        {/* Title */}
+    <section id="just-in" className="bg-white py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* HEADER */}
 
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light text-center">
-          Just In
-        </h2>
+        <div className="text-center">
+          <p className="text-sm uppercase tracking-[0.4em] text-neutral-500">
+            Ocil Fragrance
+          </p>
 
-        {/* Categories */}
+          <h2 className="mt-3 text-4xl lg:text-5xl font-light">
+            Featured Fragrances
+          </h2>
 
-        <div
-          className="
-            flex
-            flex-wrap
-            justify-center
-            gap-4
-            sm:gap-6
-            lg:gap-8
-            mt-8
-            lg:mt-10
-            text-xs
-            sm:text-sm
-            uppercase
-            tracking-widest
-          "
-        >
+          <p className="mt-5 text-neutral-500 max-w-xl mx-auto">
+            Discover our premium perfume collection for every personality.
+          </p>
+        </div>
+
+        {/* CATEGORY */}
+
+        <div className="mt-12 flex flex-wrap justify-center gap-6">
           {categories.map((item) => (
             <button
               key={item}
               onClick={() => setActive(item)}
-              className={`
-                relative
-                pb-2
-                uppercase
-                tracking-widest
-                transition-colors
-                duration-300
-
-                ${
-                  active === item
-                    ? "text-black"
-                    : "text-gray-400 hover:text-black"
-                }
-
-                after:absolute
-                after:left-0
-                after:bottom-0
-                after:h-[2px]
-                after:bg-black
-                after:transition-all
-                after:duration-300
-
-                ${
-                  active === item
-                    ? "after:w-full"
-                    : "after:w-0 hover:after:w-full"
-                }
-              `}
+              className={`relative pb-2 text-sm uppercase tracking-[0.25em] transition-all duration-300 ${
+                active === item
+                  ? "text-black"
+                  : "text-neutral-400 hover:text-black"
+              }`}
             >
               {item}
+
+              <span
+                className={`absolute left-0 bottom-0 h-[2px] bg-black transition-all duration-300 ${
+                  active === item ? "w-full" : "w-0"
+                }`}
+              />
             </button>
           ))}
         </div>
 
-        {/* Products */}
+        {/* PRODUCT */}
 
-        <div
-          className="
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            lg:grid-cols-4
-            gap-6
-            lg:gap-10
-            mt-12
-            lg:mt-16
-          "
-        >
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="
-                group
-                cursor-pointer
-                transition-all
-                duration-300
-                hover:-translate-y-2
-              "
-            >
-              {/* Image */}
-
-              <div
-                className="
-                  bg-[#f8f8f8]
-                  rounded-xl
-                  overflow-hidden
-                  aspect-[3/4]
-                  shadow-sm
-                "
-              >
+        <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {filteredProducts.map((item) => (
+            <div key={item.id} className="group cursor-pointer">
+              <div className="relative overflow-hidden rounded-2xl bg-neutral-100 aspect-[3/4]">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="
-                    w-full
-                    h-full
-                    object-cover
-                    transition-transform
-                    duration-700
-                    ease-out
-                    group-hover:scale-110
-                  "
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
                 />
+
+                <div className="absolute inset-0 bg-black/0 transition duration-300 group-hover:bg-black/10" />
               </div>
 
-              {/* Content */}
-
               <div className="mt-5">
-                <p className="uppercase text-xs text-gray-400 tracking-widest">
+                <p className="text-xs uppercase tracking-[0.25em] text-neutral-400">
                   {item.category}
                 </p>
 
-                <h3 className="mt-2 text-base sm:text-lg font-medium">
+                <h3 className="mt-2 text-lg font-medium leading-6">
                   {item.name}
                 </h3>
 
-                <p className="mt-2 text-base font-semibold">
-                  {item.price}
-                </p>
+                <p className="mt-2 text-lg font-semibold">{item.price}</p>
               </div>
             </div>
           ))}
         </div>
+
+        {filteredProducts.length === 0 && (
+          <div className="mt-20 text-center text-neutral-500">
+            No fragrances found.
+          </div>
+        )}
       </div>
     </section>
   );

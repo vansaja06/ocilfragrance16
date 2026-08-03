@@ -3,27 +3,26 @@
 const collections = [
   {
     id: 1,
-    title: "Where Dreams Meet Couture",
-    subtitle: "ETHEREAL ELEGANCE",
+    title: "Discover Our Signature Fragrances",
+    subtitle: "SIGNATURE COLLECTION",
     image:
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&q=80",
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200&q=80",
     button: "Shop Now",
   },
   {
     id: 2,
-    title: "Enchanting Styles for Every Woman",
-    subtitle: "RADIANT REVERIES",
+    title: "Luxury Perfumes From World Famous Brands",
+    subtitle: "LUXURY COLLECTION",
     image:
-      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=1400&q=80",
-    button: "Shop Now",
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1400&q=80",
+    button: "Explore",
   },
   {
     id: 3,
-    title: "Chic Footwear for City Living",
-    subtitle: "URBAN STRIDES",
-    image:
-      "https://freepngimg.com/thumb/shoes/28530-3-nike-shoes-transparent.png",
-    button: "Shop Now",
+    title: "Premium Decant Collection",
+    subtitle: "DECANT",
+    image: "https://pngimg.com/d/perfume_PNG10216.png",
+    button: "Browse",
   },
 ];
 
@@ -34,14 +33,23 @@ export default function Collection() {
       className="bg-white py-16 md:py-20 lg:py-24 mb-20 md:mb-32"
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        {/* Title */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-center mb-12 md:mb-20">
-          Collection
-        </h2>
+        {/* TITLE */}
 
-        {/* Layout */}
+        <div className="text-center mb-12 md:mb-20">
+          <p className="uppercase tracking-[0.35em] text-neutral-500 text-sm">
+            Ocil Fragrance
+          </p>
+
+          <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light">
+            Collections
+          </h2>
+        </div>
+
+        {/* GRID */}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* LEFT */}
+
           <div
             className="
               relative
@@ -51,113 +59,141 @@ export default function Collection() {
               h-[450px]
               md:h-[600px]
               lg:h-auto
-              transition-all
-              duration-500
-              hover:-translate-y-2
             "
           >
             <img
               src={collections[0].image}
               alt={collections[0].title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="
+                w-full
+                h-full
+                object-cover
+                transition-transform
+                duration-700
+                group-hover:scale-110
+              "
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-            <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 text-white">
-              <p className="text-xs tracking-[4px]">
+            <div className="absolute bottom-8 left-8 text-white">
+              <p className="text-xs tracking-[0.35em]">
                 {collections[0].subtitle}
               </p>
 
-              <h3 className="text-2xl md:text-3xl mt-3 leading-tight max-w-sm">
+              <h3 className="mt-3 text-3xl max-w-sm leading-tight">
                 {collections[0].title}
               </h3>
 
-              <button className="mt-8 bg-white text-black rounded-full px-6 py-3 font-medium hover:scale-105 transition">
-                Shop Now
+              <button className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105">
+                {collections[0].button}
               </button>
             </div>
           </div>
 
           {/* RIGHT */}
-          <div
-            className="
-            grid
-            gap-6
-            lg:col-span-2
-            lg:grid-rows-[1.2fr_1fr]
-          "
-          >
+
+          <div className="grid gap-6 lg:col-span-2 lg:grid-rows-[1.2fr_1fr]">
             {/* TOP */}
+
             <div className="relative rounded-3xl overflow-hidden group h-[350px] md:h-[450px]">
               <img
                 src={collections[1].image}
                 alt={collections[1].title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className="
+                  w-full
+                  h-full
+                  object-cover
+                  transition-transform
+                  duration-700
+                  group-hover:scale-110
+                "
               />
 
-              <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute inset-0 bg-black/35" />
 
-              <div className="absolute left-6 top-6 md:left-10 md:top-10 text-white">
-                <p className="text-xs tracking-[4px]">
+              <div className="absolute left-8 top-8 text-white">
+                <p className="text-xs tracking-[0.35em]">
                   {collections[1].subtitle}
                 </p>
 
-                <h3 className="text-2xl md:text-4xl mt-3 max-w-md leading-tight">
+                <h3 className="mt-4 text-4xl max-w-lg leading-tight">
                   {collections[1].title}
                 </h3>
 
-                <button className="mt-8 bg-white text-black rounded-full px-6 py-3 font-medium hover:scale-105 transition">
-                  Shop Now
+                <button className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105">
+                  {collections[1].button}
                 </button>
               </div>
             </div>
 
-            {/* Bottom */}
+            {/* BOTTOM */}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Shoes */}
-              <div className="rounded-3xl bg-[#f7f7f7] p-6 md:p-10 flex flex-col justify-between">
+              {/* DECANT */}
+
+              <div className="rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between">
                 <div>
-                  <p className="text-xs tracking-[4px] text-gray-400">
+                  <p className="text-xs tracking-[0.35em] text-neutral-400">
                     {collections[2].subtitle}
                   </p>
 
-                  <h3 className="text-2xl md:text-3xl mt-4 max-w-xs leading-tight">
+                  <h3 className="mt-4 text-3xl leading-tight max-w-xs">
                     {collections[2].title}
                   </h3>
+
+                  <p className="mt-5 text-neutral-500">
+                    Experience luxury fragrances in 5ml, 10ml and 30ml sizes.
+                  </p>
                 </div>
 
-                <div className="flex justify-between items-end mt-10">
+                <div className="flex justify-between items-end mt-8">
                   <button className="underline underline-offset-4">
-                    Shop Now
+                    {collections[2].button}
                   </button>
 
                   <img
                     src={collections[2].image}
                     alt={collections[2].title}
                     className="
-                      w-28
-                      sm:w-32
+                      w-32
                       md:w-40
                       object-contain
                       transition-all
                       duration-500
                       hover:scale-110
-                      hover:-rotate-6
                     "
                   />
                 </div>
               </div>
 
-              {/* Discount */}
-              <div className="rounded-3xl bg-[#f5f5f5] flex flex-col justify-center items-center py-14">
-                <p className="text-gray-400 text-center">
-                  Trending Bags for Her
+              {/* PROMO */}
+
+              <div
+                className="
+                  rounded-3xl
+                  bg-gradient-to-br
+                  from-black
+                  to-neutral-800
+                  text-white
+                  flex
+                  flex-col
+                  justify-center
+                  items-center
+                  py-14
+                "
+              >
+                <p className="uppercase tracking-[0.3em] text-sm text-neutral-300">
+                  Limited Offer
                 </p>
 
-                <h1 className="text-5xl md:text-7xl font-bold my-3">50%</h1>
+                <h1 className="text-6xl font-bold my-4">30%</h1>
 
-                <button className="bg-black text-white rounded-full px-8 py-3 hover:scale-105 transition">
+                <p className="text-neutral-300 mb-8">
+                  Discount For Selected Perfumes
+                </p>
+
+                <button className="rounded-full bg-white text-black px-8 py-3 transition hover:scale-105">
                   Shop Now
                 </button>
               </div>
