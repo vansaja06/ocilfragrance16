@@ -11,7 +11,7 @@ export default function Footer() {
           {/* Logo */}
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
-              eXfr
+              Ocil Fragrance 16
             </h2>
 
             <p className="text-gray-500 leading-7 sm:leading-8 text-sm max-w-xs">
