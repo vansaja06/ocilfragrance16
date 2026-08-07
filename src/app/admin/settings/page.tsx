@@ -3,11 +3,12 @@
 import { FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 
-import { Settings as SettingsIcon } from "lucide-react";
+import { Settings as SettingsIcon, CreditCard } from "lucide-react";
 
 import DashboardLayout from "@/components/admin/DashboardLayout";
 import PageHeader from "@/components/admin/PageHeader";
 import LoadingBlock from "@/components/admin/LoadingBlock";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,8 @@ const emptySettings: Settings = {
   instagram: "",
   twitter: "",
   facebook: "",
+  qrisImage: "",
+  bankAccount: "",
 };
 
 export default function SettingsPage() {
@@ -131,6 +134,46 @@ export default function SettingsPage() {
                     />
                   </div>
                 ))}
+              </div>
+            </section>
+
+            <section className="rounded-3xl border border-neutral-200 bg-white p-6 lg:p-8">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8f8f8] text-neutral-700">
+                  <CreditCard size={20} />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-light tracking-tight text-black">
+                    Pembayaran
+                  </h2>
+
+                  <p className="text-sm text-neutral-500">
+                    Data QRIS dan rekening untuk pemesanan produk.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">QRIS</label>
+
+                  <ImageUpload
+                    value={form.qrisImage ?? ""}
+                    onChange={(url) => update("qrisImage", url)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nomor Rekening</label>
+
+                  <Input
+                    value={form.bankAccount ?? ""}
+                    onChange={(e) => update("bankAccount", e.target.value)}
+                    placeholder="Contoh: BCA 1234567890 a.n. Ocil Fragrance"
+                    className="h-12 rounded-2xl px-4"
+                  />
+                </div>
               </div>
             </section>
 

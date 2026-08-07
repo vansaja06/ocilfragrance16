@@ -10,39 +10,65 @@ import PageHeader from "@/components/admin/PageHeader";
 import EmptyState from "@/components/admin/EmptyState";
 import LoadingBlock from "@/components/admin/LoadingBlock";
 import ImageUpload from "@/components/admin/ImageUpload";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { api, getErrorMessage } from "@/lib/api";
 import { useFetch } from "@/lib/useFetch";
 import { notifyDataChanged } from "@/lib/dataEvents";
-import { Banner } from "@/lib/types";
+import { Banner, Product } from "@/lib/types";
 
 interface BannersResponse {
   banners: Banner[];
 }
 
+interface ProductsResponse {
+  products: Product[];
+}
+
 export default function BannerPage() {
   const { data, loading, refetch } = useFetch<BannersResponse>("/banners");
+  const { data: productData, loading: productsLoading } =
+    useFetch<ProductsResponse>("/products");
 
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [description, setDescription] = useState("");
   const [button, setButton] = useState("");
+  const [product, setProduct] = useState("");
   const [image, setImage] = useState("");
 
   const banners = data?.banners ?? [];
+  const products = productData?.products ?? [];
+
+  const canAdd = products.length > 0;
+
+  const openDialog = () => {
+    if (!canAdd) {
+      toast.error("Tambahkan produk terlebih dahulu sebelum membuat banner");
+
+      return;
+    }
+
+    setOpen(true);
+  };
 
   const resetForm = () => {
     setTitle("");
     setSubtitle("");
     setDescription("");
     setButton("");
+    setProduct("");
     setImage("");
   };
 
@@ -55,6 +81,12 @@ export default function BannerPage() {
       return;
     }
 
+    if (!product) {
+      toast.error("Produk untuk banner wajib dipilih");
+
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -63,6 +95,7 @@ export default function BannerPage() {
         subtitle,
         description,
         button,
+        product,
         image,
       });
 
@@ -93,20 +126,31 @@ export default function BannerPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Yakin ingin menghapus banner ini?")) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
 
     try {
-      await api.delete(`/banners/${id}`);
+      setDeleting(true);
+
+      await api.delete(`/banners/${deleteId}`);
 
       toast.success("Banner dihapus");
+
+      setDeleteId(null);
 
       refetch();
       notifyDataChanged();
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus banner"));
+    } finally {
+      setDeleting(false);
     }
   };
+
+  const productName = (banner: Banner) =>
+    typeof banner.product === "object" && banner.product
+      ? banner.product.name
+      : null;
 
   return (
     <DashboardLayout>
@@ -117,8 +161,9 @@ export default function BannerPage() {
           subtitle={`${loading ? "…" : banners.length} banner tersedia.`}
           action={
             <button
-              onClick={() => setOpen(true)}
-              className="flex items-center gap-2 rounded-full bg-black px-7 py-3 text-sm font-medium text-white transition hover:bg-neutral-800"
+              onClick={openDialog}
+              disabled={!canAdd}
+              className="flex items-center gap-2 rounded-full bg-black px-7 py-3 text-sm font-medium text-white transition hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Plus size={18} />
 
@@ -127,16 +172,24 @@ export default function BannerPage() {
           }
         />
 
-        {loading ? (
+        {loading || productsLoading ? (
           <LoadingBlock rows={3} />
         ) : banners.length === 0 ? (
-          <EmptyState
-            icon={<ImageIcon size={28} />}
-            title="Belum ada banner"
-            description="Banner akan tampil sebagai hero di halaman utama situs."
-            actionLabel="Tambah Banner"
-            onAction={() => setOpen(true)}
-          />
+          canAdd ? (
+            <EmptyState
+              icon={<ImageIcon size={28} />}
+              title="Belum ada banner"
+              description="Banner akan tampil sebagai hero di halaman utama situs."
+              actionLabel="Tambah Banner"
+              onAction={openDialog}
+            />
+          ) : (
+            <EmptyState
+              icon={<ImageIcon size={28} />}
+              title="Belum ada produk"
+              description="Banner terhubung dengan produk. Tambahkan produk terlebih dahulu sebelum membuat hero banner."
+            />
+          )
         ) : (
           <section className="space-y-6">
             {banners.map((banner) => (
@@ -179,7 +232,7 @@ export default function BannerPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4">
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span
                       className={`flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
                         banner.active
@@ -195,6 +248,12 @@ export default function BannerPage() {
 
                       {banner.active ? "Aktif" : "Nonaktif"}
                     </span>
+
+                    {productName(banner) && (
+                      <span className="rounded-full bg-[#f8f8f8] px-3 py-1 text-xs text-neutral-500">
+                        Produk: {productName(banner)}
+                      </span>
+                    )}
 
                     {banner.button && (
                       <span className="rounded-full bg-[#f8f8f8] px-3 py-1 text-xs text-neutral-500">
@@ -213,7 +272,7 @@ export default function BannerPage() {
                     </button>
 
                     <button
-                      onClick={() => handleDelete(banner._id)}
+                      onClick={() => setDeleteId(banner._id)}
                       className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-red-50 hover:text-red-500"
                       aria-label="Hapus banner"
                     >
@@ -234,11 +293,29 @@ export default function BannerPage() {
             <DialogTitle>Tambah Banner</DialogTitle>
 
             <DialogDescription>
-              Banner ini akan tampil di hero halaman utama.
+              Banner akan tampil di hero halaman utama dan mengarah ke produk.
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="mt-2 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Produk</label>
+
+              <Select value={product} onValueChange={setProduct}>
+                <SelectTrigger className="h-12 w-full rounded-2xl px-4">
+                  <SelectValue placeholder="Pilih produk untuk banner" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {products.map((item) => (
+                    <SelectItem key={item._id} value={item._id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Judul</label>
 
@@ -278,7 +355,7 @@ export default function BannerPage() {
               <Input
                 value={button}
                 onChange={(e) => setButton(e.target.value)}
-                placeholder="Shop Collection"
+                placeholder="Shop Now"
                 className="h-12 rounded-2xl px-4"
               />
             </div>
@@ -311,6 +388,16 @@ export default function BannerPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Konfirmasi Hapus */}
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Hapus Banner"
+        description="Yakin ingin menghapus banner ini? Tindakan ini tidak dapat dibatalkan."
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </DashboardLayout>
   );
 }

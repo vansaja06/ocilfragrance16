@@ -6,6 +6,7 @@ import axios from "axios";
 
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,11 +34,11 @@ export default function LoginForm() {
         password,
       });
 
-      alert(res.data.message);
+      toast.success(res.data.message);
 
       router.push("/admin/dashboard");
     } catch (error) {
-      alert(getErrorMessage(error, "Login gagal"));
+      toast.error(getErrorMessage(error, "Login gagal"));
     } finally {
       setLoading(false);
     }

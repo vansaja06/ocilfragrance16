@@ -4,32 +4,43 @@ import { ArrowRight } from "lucide-react";
 
 export default function Subscribe() {
   return (
-    <section id="subscribe" className="bg-white py-20 sm:py-24 lg:py-32">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        
+    <section
+      id="subscribe"
+      className="relative overflow-hidden bg-white pt-24 pb-32 sm:pt-32 sm:pb-40 lg:pt-44 lg:pb-52"
+    >
+      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
+        {/* Eyebrow */}
+        <p className="text-xs uppercase tracking-[0.4em] text-neutral-500">
+          Newsletter
+        </p>
+
         {/* Title */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight">
+        <h2 className="mt-5 text-3xl font-light tracking-tight sm:text-4xl lg:text-5xl">
           Join the Ocilfragrance16 Universe
         </h2>
 
         {/* Description */}
-        <p className="mt-4 sm:mt-6 text-gray-500 leading-7 sm:leading-8 max-w-xl mx-auto text-sm sm:text-base">
+        <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-neutral-500 sm:text-base sm:leading-8">
           Be the first to know about exclusive collections,
           runway updates, special promotions,
           and sustainable fashion initiatives.
         </p>
 
         {/* Form */}
-        <form className="mt-10 sm:mt-12 flex justify-center">
+        <form className="mt-12 flex justify-center sm:mt-14">
           <div
             className="
-              flex flex-col sm:flex-row
+              flex
               w-full
               max-w-xl
-              rounded-2xl sm:rounded-full
-              border border-gray-200
+              flex-col
               overflow-hidden
+              rounded-2xl
+              border
+              border-gray-200
               shadow-sm
+              sm:flex-row
+              sm:rounded-full
             "
           >
             <input
@@ -37,28 +48,30 @@ export default function Subscribe() {
               placeholder="Your email address"
               className="
                 flex-1
-                px-5 sm:px-7
-                py-4 sm:py-5
-                outline-none
-                text-sm
                 bg-white
+                px-5
+                py-5
+                text-sm
+                outline-none
+                sm:px-7
               "
             />
 
             <button
               className="
                 flex
+                w-full
                 items-center
                 justify-center
                 gap-2
-                px-6 sm:px-8
-                py-4 sm:py-5
                 bg-black
-                text-white
+                px-8
+                py-5
                 font-medium
-                hover:bg-neutral-800
+                text-white
                 transition
-                w-full sm:w-auto
+                hover:bg-neutral-800
+                sm:w-auto
               "
             >
               Subscribe
@@ -67,6 +80,10 @@ export default function Subscribe() {
           </div>
         </form>
 
+        {/* Benefit note */}
+        <p className="mt-8 text-xs uppercase tracking-[0.25em] text-neutral-400">
+          No spam, just good scents. Unsubscribe anytime.
+        </p>
       </div>
     </section>
   );

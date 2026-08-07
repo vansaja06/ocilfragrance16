@@ -2,11 +2,16 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import gsap from "gsap";
 
-const banners = [
+import { api } from "@/lib/api";
+import { Banner } from "@/lib/types";
+
+const fallbackBanners: Banner[] = [
   {
-    id: 1,
+    _id: "fallback-1",
+    active: true,
     image:
       "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2000&auto=format&fit=crop",
     subtitle: "Ocil Fragrance",
@@ -17,7 +22,8 @@ const banners = [
   },
 
   {
-    id: 2,
+    _id: "fallback-2",
+    active: true,
     image:
       "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=2000&auto=format&fit=crop",
     subtitle: "Signature Collection",
@@ -28,7 +34,8 @@ const banners = [
   },
 
   {
-    id: 3,
+    _id: "fallback-3",
+    active: true,
     image:
       "https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=2000&auto=format&fit=crop",
     subtitle: "New Arrival",
@@ -39,22 +46,53 @@ const banners = [
   },
 ];
 
+interface BannersResponse {
+  banners: Banner[];
+}
+
 export default function HeroBanner() {
+  const router = useRouter();
+
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const [banners, setBanners] = useState<Banner[]>(fallbackBanners);
   const [current, setCurrent] = useState(0);
 
   const banner = banners[current];
+  const product =
+    typeof banner.product === "object" && banner.product ? banner.product : null;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    api
+      .get<BannersResponse>("/banners/active")
+      .then((res) => {
+        if (!cancelled && res.data?.banners?.length) {
+          setBanners(res.data.banners);
+          setCurrent(0);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const nextSlide = () => {
     setCurrent((prev) => (prev + 1) % banners.length);
   };
 
   const prevSlide = () => {
-    setCurrent((prev) =>
-      prev === 0 ? banners.length - 1 : prev - 1,
-    );
+    setCurrent((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+  };
+
+  const goToProduct = () => {
+    if (product) {
+      router.push(`/product/${product.slug || product._id}`);
+    }
   };
 
   // Auto Slide
@@ -64,7 +102,7 @@ export default function HeroBanner() {
     }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [banners.length]);
 
   // GSAP Animation
   useEffect(() => {
@@ -171,6 +209,7 @@ export default function HeroBanner() {
 
           {/* Button */}
           <button
+            onClick={goToProduct}
             className="
               mt-8
               px-6
@@ -187,7 +226,7 @@ export default function HeroBanner() {
               duration-300
             "
           >
-            {banner.button}
+            {banner.button || "Shop Now"}
           </button>
         </div>
       </div>
@@ -273,9 +312,9 @@ export default function HeroBanner() {
           z-20
         "
       >
-        {banners.map((_, index) => (
+        {banners.map((item, index) => (
           <button
-            key={index}
+            key={item._id || index}
             onClick={() => setCurrent(index)}
             aria-label={`Go to slide ${index + 1}`}
             className={`h-[4px] rounded-full transition-all duration-500 ${

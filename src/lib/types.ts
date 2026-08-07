@@ -57,6 +57,7 @@ export interface Customer {
 
 export interface Banner {
   _id: string;
+  product?: string | Pick<Product, "_id" | "name" | "slug" | "price" | "image"> | null;
   subtitle?: string;
   title: string;
   description?: string;
@@ -75,6 +76,8 @@ export interface Settings {
   instagram?: string;
   twitter?: string;
   facebook?: string;
+  qrisImage?: string;
+  bankAccount?: string;
 }
 
 export interface Stats {

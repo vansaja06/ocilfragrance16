@@ -9,6 +9,8 @@ const DEFAULT_SETTINGS = {
   instagram: "",
   twitter: "",
   facebook: "",
+  qrisImage: "",
+  bankAccount: "",
 };
 
 export default class SettingService {

@@ -4,6 +4,12 @@ const { Schema, model, models } = mongoose;
 
 const BannerSchema = new Schema(
   {
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+
     subtitle: {
       type: String,
       default: "",

@@ -10,6 +10,7 @@ import PageHeader from "@/components/admin/PageHeader";
 import EmptyState from "@/components/admin/EmptyState";
 import LoadingBlock from "@/components/admin/LoadingBlock";
 import ImageUpload from "@/components/admin/ImageUpload";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,9 @@ export default function ProductsPage() {
 
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [catOpen, setCatOpen] = useState(false);
   const [catSubmitting, setCatSubmitting] = useState(false);
@@ -136,18 +140,24 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
 
     try {
-      await api.delete(`/products/${id}`);
+      setDeleting(true);
+
+      await api.delete(`/products/${deleteId}`);
 
       toast.success("Produk dihapus");
+
+      setDeleteId(null);
 
       refetch();
       notifyDataChanged();
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus produk"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -205,14 +215,6 @@ export default function ProductsPage() {
                         <Package2 size={40} />
                       </div>
                     )}
-
-                    <button
-                      onClick={() => handleDelete(product._id)}
-                      className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-600 opacity-0 shadow backdrop-blur transition hover:text-red-500 group-hover:opacity-100"
-                      aria-label="Hapus produk"
-                    >
-                      <Trash2 size={16} />
-                    </button>
                   </div>
 
                   <div className="mt-5">
@@ -250,6 +252,16 @@ export default function ProductsPage() {
                         {product.featured ? "Unggulan" : "Reguler"}
                       </span>
                     </div>
+
+                    <button
+                      onClick={() => setDeleteId(product._id)}
+                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-full border border-neutral-200 py-2.5 text-sm text-neutral-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+                      aria-label="Hapus produk"
+                    >
+                      <Trash2 size={16} />
+
+                      Hapus
+                    </button>
                   </div>
                 </div>
               );
@@ -439,6 +451,16 @@ export default function ProductsPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Konfirmasi Hapus */}
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Hapus Produk"
+        description="Yakin ingin menghapus produk ini? Tindakan ini tidak dapat dibatalkan."
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </DashboardLayout>
   );
 }

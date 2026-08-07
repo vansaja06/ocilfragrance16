@@ -18,20 +18,6 @@ export default function LoginCard() {
       {/* Content */}
       <div className="relative z-10">
 
-        {/* Back to home */}
-        <div className="mb-6 flex justify-center">
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-700 transition hover:bg-white/60"
-          >
-            <ArrowLeft size={14} />
-
-            Kembali ke Beranda
-          </Link>
-
-        </div>
-
         {/* Brand */}
         <div className="mb-8 flex justify-center">
 
@@ -73,6 +59,20 @@ export default function LoginCard() {
             <br />
             Administrator Panel
           </p>
+
+        </div>
+
+        {/* Back to home */}
+        <div className="mt-8 flex justify-center">
+
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-white/50 bg-white/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-700 transition hover:bg-white/60"
+          >
+            <ArrowLeft size={14} />
+
+            Kembali ke Beranda
+          </Link>
 
         </div>
 

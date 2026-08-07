@@ -10,8 +10,8 @@ import { useRouter } from "next/navigation";
 gsap.registerPlugin(ScrollToPlugin);
 
 const menus = [
-  { title: "Shop", id: "shop" },
-  { title: "Just In", id: "just-in" },
+  { title: "ocilfragrance16", id: "shop", brand: true },
+  { title: "Shop", id: "just-in" },
   { title: "Collection", id: "collection" },
   { title: "Subscribe", id: "subscribe" },
   { title: "About", id: "footer" },
@@ -25,6 +25,7 @@ export default function Navbar() {
 
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
 
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
@@ -123,10 +124,50 @@ export default function Navbar() {
     }
   }, [mobileMenu]);
 
+  // ================= ACTIVE SECTION =================
+  useEffect(() => {
+    const onScroll = () => {
+      const offset = window.innerHeight * 0.35;
+      let currentId = menus[0].id;
+
+      for (const menu of menus) {
+        const el = document.getElementById(menu.id);
+        if (!el) continue;
+
+        if (el.getBoundingClientRect().top <= offset) {
+          currentId = menu.id;
+        }
+      }
+
+      const last = menus[menus.length - 1];
+      const lastEl = document.getElementById(last.id);
+
+      if (
+        lastEl &&
+        lastEl.getBoundingClientRect().bottom <= window.innerHeight + 4
+      ) {
+        currentId = last.id;
+      }
+
+      setActive(currentId);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   // ================= SCROLL =================
   const handleScroll = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
+
+    setActive(id);
 
     gsap.to(window, {
       duration: 1,
@@ -142,13 +183,15 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       <div
         ref={mobileMenuRef}
-        className="lg:hidden absolute top-20 left-0 w-full backdrop-blur-2xl bg-white/10 opacity-0 pointer-events-none"
+        className="lg:hidden absolute top-20 left-0 w-full backdrop-blur-2xl bg-white/60 opacity-0 pointer-events-none"
       >
         {menus.map((menu) => (
           <button
             key={menu.title}
             onClick={() => handleScroll(menu.id)}
-            className="block w-full text-left px-6 py-5 text-black"
+            className={`block w-full text-left px-6 py-5 text-black ${
+              menu.brand ? "text-xl font-bold tracking-tight" : ""
+            }`}
           >
             {menu.title}
           </button>
@@ -169,24 +212,33 @@ export default function Navbar() {
           {/* DESKTOP MENU */}
           <div
             ref={desktopMenuRef}
-            className="hidden lg:flex items-center gap-8 text-[15px]"
+            className="hidden lg:flex items-stretch gap-5 lg:gap-6 xl:gap-8 text-base"
           >
             {menus.map((menu) => (
               <button
                 key={menu.title}
                 onClick={() => handleScroll(menu.id)}
-                className="relative group text-black"
+                className={`relative group flex items-center whitespace-nowrap text-black ${
+                  menu.brand
+                    ? "text-2xl lg:text-[26px] font-bold tracking-tight"
+                    : ""
+                }`}
               >
                 {menu.title}
 
                 {/* UNDERLINE */}
                 <span
-                  className="
-                    absolute left-0 -bottom-[2px]
-                    h-[2px] w-0 bg-black
+                  className={`
+                    absolute left-0 bottom-0
+                    h-[2px] bg-black
                     transition-all duration-300 ease-out
                     group-hover:w-full
-                  "
+                    ${
+                      active === menu.id
+                        ? "w-full"
+                        : "w-0"
+                    }
+                  `}
                 />
               </button>
             ))}
@@ -255,7 +307,7 @@ export default function Navbar() {
         <div className="lg:hidden overflow-hidden">
           <div
             ref={mobileSearchRef}
-            className={`flex items-center h-12 mx-4 my-3 px-4 rounded-full ${glass}`}
+            className={`flex items-center h-12 mx-4 my-3 px-4 rounded-full bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]`}
             style={{ opacity: 0, transform: "scaleX(0)" }}
           >
             <input

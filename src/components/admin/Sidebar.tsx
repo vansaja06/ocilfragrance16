@@ -28,24 +28,18 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   };
 
   return (
-    <aside className="hidden min-h-screen w-72 flex-col justify-between border-r border-neutral-200 bg-white lg:flex">
+    <aside className="hidden h-screen w-72 flex-col justify-between overflow-y-auto border-r border-neutral-200 bg-white lg:flex">
       {/* Logo */}
       <div>
         <div className="px-8 pb-10 pt-8">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow">
-              🌸
-            </div>
+          <Link href="/">
+            <h1 className="text-xl font-bold tracking-tight text-black">
+              OCIL
+            </h1>
 
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-black">
-                OCIL
-              </h1>
-
-              <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
-                Fragrance Admin
-              </p>
-            </div>
+            <p className="mt-1 text-xs uppercase tracking-[0.3em] text-neutral-400">
+              Fragrance Admin
+            </p>
           </Link>
         </div>
 

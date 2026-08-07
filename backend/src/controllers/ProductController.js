@@ -17,6 +17,16 @@ export default class ProductController {
     }
   };
 
+  getBySlug = async (req, res, next) => {
+    try {
+      const product = await this.#productService.getBySlug(req.params.slug);
+
+      res.json({ success: true, product });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   create = async (req, res, next) => {
     try {
       const product = await this.#productService.create(req.body);

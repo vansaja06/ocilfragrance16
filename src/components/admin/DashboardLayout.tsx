@@ -39,12 +39,12 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-white">
       <Toaster position="top-center" toastOptions={{ style: { borderRadius: "9999px" } }} />
 
-      <div className="flex min-h-screen">
+      <div className="flex h-screen overflow-hidden">
         {/* Sidebar (Desktop) */}
         <Sidebar />
 
         {/* Main */}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
           <div className="px-6 pt-8 lg:px-12">
             <Header onOpenMenu={() => setMobileOpen(true)} />
           </div>
@@ -63,27 +63,20 @@ export default function DashboardLayout({
             onClick={() => setMobileOpen(false)}
           />
 
-          <div className="absolute left-0 top-0 flex h-full w-72 flex-col justify-between border-r border-neutral-200 bg-white shadow-2xl">
+          <div className="absolute left-0 top-0 flex h-full w-72 flex-col justify-between overflow-y-auto border-r border-neutral-200 bg-white shadow-2xl">
             <div>
               <div className="flex items-center justify-between px-6 pb-8 pt-6">
                 <Link
                   href="/"
-                  className="flex items-center gap-3"
                   onClick={() => setMobileOpen(false)}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-black text-white shadow">
-                    🌸
-                  </div>
+                  <h1 className="text-xl font-bold tracking-tight text-black">
+                    OCIL
+                  </h1>
 
-                  <div>
-                    <h1 className="text-xl font-bold tracking-tight text-black">
-                      OCIL
-                    </h1>
-
-                    <p className="text-xs uppercase tracking-[0.3em] text-neutral-400">
-                      Fragrance Admin
-                    </p>
-                  </div>
+                  <p className="mt-1 text-xs uppercase tracking-[0.3em] text-neutral-400">
+                    Fragrance Admin
+                  </p>
                 </Link>
 
                 <button

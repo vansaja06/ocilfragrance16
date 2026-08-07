@@ -9,6 +9,7 @@ import DashboardLayout from "@/components/admin/DashboardLayout";
 import PageHeader from "@/components/admin/PageHeader";
 import EmptyState from "@/components/admin/EmptyState";
 import LoadingBlock from "@/components/admin/LoadingBlock";
+import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,9 @@ export default function CategoriesPage() {
 
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -63,18 +67,24 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Yakin ingin menghapus kategori ini?")) return;
+  const handleDelete = async () => {
+    if (!deleteId) return;
 
     try {
-      await api.delete(`/categories/${id}`);
+      setDeleting(true);
+
+      await api.delete(`/categories/${deleteId}`);
 
       toast.success("Kategori dihapus");
+
+      setDeleteId(null);
 
       refetch();
       notifyDataChanged();
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus kategori"));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -131,7 +141,7 @@ export default function CategoriesPage() {
                 </div>
 
                 <button
-                  onClick={() => handleDelete(category._id)}
+                  onClick={() => setDeleteId(category._id)}
                   className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 text-neutral-500 transition hover:bg-red-50 hover:text-red-500"
                   aria-label="Hapus kategori"
                 >
@@ -199,6 +209,16 @@ export default function CategoriesPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog Konfirmasi Hapus */}
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Hapus Kategori"
+        description="Yakin ingin menghapus kategori ini? Tindakan ini tidak dapat dibatalkan."
+        loading={deleting}
+        onConfirm={handleDelete}
+      />
     </DashboardLayout>
   );
 }

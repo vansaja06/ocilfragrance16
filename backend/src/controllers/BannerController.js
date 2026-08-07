@@ -17,6 +17,16 @@ export default class BannerController {
     }
   };
 
+  active = async (req, res, next) => {
+    try {
+      const banners = await this.#bannerService.active();
+
+      res.json({ success: true, banners });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   create = async (req, res, next) => {
     try {
       const banner = await this.#bannerService.create(req.body);

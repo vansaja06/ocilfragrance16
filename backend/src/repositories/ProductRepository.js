@@ -7,7 +7,10 @@ export default class ProductRepository extends BaseRepository {
   }
 
   findBySlug(slug) {
-    return this.findOne({ slug });
+    return this.findAll({ slug })
+      .populate("category", "name")
+      .exec()
+      .then((docs) => docs[0]);
   }
 
   findTopSold(limit = 5) {

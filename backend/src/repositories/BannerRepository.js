@@ -6,6 +6,12 @@ export default class BannerRepository extends BaseRepository {
     super(Banner);
   }
 
+  findAll(filter = {}, options = {}) {
+    return super
+      .findAll(filter, options)
+      .populate("product", "name slug price image stock");
+  }
+
   findActive() {
     return this.findAll({ active: true });
   }

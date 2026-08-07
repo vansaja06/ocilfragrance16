@@ -22,6 +22,16 @@ export default class ProductService {
     return product;
   }
 
+  async getBySlug(slug) {
+    const product = await this.#productRepository.findBySlug(slug);
+
+    if (!product) {
+      throw ApiError.notFound("Produk tidak ditemukan");
+    }
+
+    return product;
+  }
+
   async create(data) {
     if (!data.name || data.price === undefined) {
       throw ApiError.badRequest("Nama dan harga wajib diisi", {
