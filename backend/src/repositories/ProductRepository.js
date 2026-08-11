@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
 import BaseRepository from "./BaseRepository.js";
 
@@ -7,7 +8,11 @@ export default class ProductRepository extends BaseRepository {
   }
 
   findBySlug(slug) {
-    return this.findAll({ slug })
+    const filter = mongoose.isValidObjectId(slug)
+      ? { $or: [{ slug }, { _id: slug }] }
+      : { slug };
+
+    return this.findAll(filter)
       .populate("category", "name")
       .exec()
       .then((docs) => docs[0]);

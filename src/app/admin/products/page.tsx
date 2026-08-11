@@ -1,9 +1,18 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
-import { Plus, Trash2, Package, Package2, Star, Tags } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Package,
+  Package2,
+  Star,
+  Tags,
+  Search,
+  PackageSearch,
+} from "lucide-react";
 
 import DashboardLayout from "@/components/admin/DashboardLayout";
 import PageHeader from "@/components/admin/PageHeader";
@@ -31,6 +40,14 @@ interface CategoriesResponse {
   categories: Category[];
 }
 
+const DECANT_SIZES = ["5 ml", "10 ml", "15 ml"] as const;
+
+const emptyDecantPrices: Record<(typeof DECANT_SIZES)[number], string> = {
+  "5 ml": "",
+  "10 ml": "",
+  "15 ml": "",
+};
+
 export default function ProductsPage() {
   const { data, loading, refetch } = useFetch<ProductsResponse>("/products");
   const { data: categoryData, refetch: refetchCategories } =
@@ -38,6 +55,7 @@ export default function ProductsPage() {
 
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [query, setQuery] = useState("");
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -53,9 +71,33 @@ export default function ProductsPage() {
   const [category, setCategory] = useState("");
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
+  const [longDescription, setLongDescription] = useState("");
+
+  const [hasDecant, setHasDecant] = useState(false);
+  const [decantPrices, setDecantPrices] = useState<Record<string, string>>(
+    emptyDecantPrices
+  );
 
   const products = data?.products ?? [];
   const categories = categoryData?.categories ?? [];
+
+  const filteredProducts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    if (!q) return products;
+
+    return products.filter((product) => {
+      const categoryName =
+        typeof product.category === "string"
+          ? ""
+          : product.category?.name ?? "";
+
+      return (
+        product.name.toLowerCase().includes(q) ||
+        categoryName.toLowerCase().includes(q)
+      );
+    });
+  }, [products, query]);
 
   const handleCreateCategory = async (e: FormEvent) => {
     e.preventDefault();
@@ -103,6 +145,9 @@ export default function ProductsPage() {
     setCategory("");
     setImage("");
     setDescription("");
+    setLongDescription("");
+    setHasDecant(false);
+    setDecantPrices(emptyDecantPrices);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -114,6 +159,13 @@ export default function ProductsPage() {
       return;
     }
 
+    const decants = hasDecant
+      ? DECANT_SIZES.filter((size) => decantPrices[size]).map((size) => ({
+          size,
+          price: Number(decantPrices[size]) || 0,
+        }))
+      : [];
+
     try {
       setSubmitting(true);
 
@@ -124,6 +176,9 @@ export default function ProductsPage() {
         category: category || null,
         image,
         description,
+        longDescription,
+        hasDecant,
+        decants,
       });
 
       toast.success("Produk berhasil ditambahkan");
@@ -191,8 +246,48 @@ export default function ProductsPage() {
             onAction={() => setOpen(true)}
           />
         ) : (
-          <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((product) => {
+          <>
+            <div className="relative">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
+              />
+
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Cari nama produk atau kategori..."
+                className="w-full rounded-full border border-neutral-200 bg-white py-3 pl-11 pr-4 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none"
+              />
+
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-medium text-neutral-400 transition hover:text-neutral-700"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            {filteredProducts.length === 0 ? (
+              <div className="rounded-3xl border border-neutral-200 bg-white py-16 text-center">
+                <PackageSearch
+                  size={32}
+                  className="mx-auto text-neutral-300"
+                />
+
+                <h3 className="mt-4 text-base font-medium text-black">
+                  Tidak ada produk yang cocok
+                </h3>
+
+                <p className="mt-1 text-sm text-neutral-500">
+                  Coba kata kunci lain untuk &quot;{query.trim()}&quot;
+                </p>
+              </div>
+            ) : (
+              <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {filteredProducts.map((product) => {
               const categoryName =
                 typeof product.category === "string"
                   ? "Produk"
@@ -266,7 +361,9 @@ export default function ProductsPage() {
                 </div>
               );
             })}
-          </section>
+              </section>
+            )}
+          </>
         )}
       </div>
 
@@ -355,6 +452,59 @@ export default function ProductsPage() {
               </div>
             </div>
 
+            <div className="rounded-2xl border border-neutral-100 bg-[#f8f8f8] p-4">
+              <label className="flex cursor-pointer items-center justify-between gap-3">
+                <span className="text-sm font-medium text-black">
+                  Tambahkan Decant
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setHasDecant((v) => !v)}
+                  aria-pressed={hasDecant}
+                  className={`relative h-7 w-12 rounded-full transition-colors duration-300 ${
+                    hasDecant ? "bg-black" : "bg-neutral-300"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all duration-300 ${
+                      hasDecant ? "left-6" : "left-1"
+                    }`}
+                  />
+                </button>
+              </label>
+
+              <p className="mt-2 text-xs text-neutral-500">
+                Tampilkan pilihan full parfum dan decant (beberapa ukuran) saat
+                produk ini dibeli.
+              </p>
+
+              {hasDecant && (
+                <div className="mt-4 space-y-3">
+                  {DECANT_SIZES.map((size) => (
+                    <div key={size} className="flex items-center gap-3">
+                      <span className="w-14 text-sm font-medium text-neutral-700">
+                        {size}
+                      </span>
+
+                      <Input
+                        type="number"
+                        value={decantPrices[size]}
+                        onChange={(e) =>
+                          setDecantPrices((prev) => ({
+                            ...prev,
+                            [size]: e.target.value,
+                          }))
+                        }
+                        placeholder={`Harga ${size}`}
+                        className="h-11 rounded-2xl px-4"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Gambar</label>
 
@@ -362,13 +512,25 @@ export default function ProductsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Deskripsi</label>
+              <label className="text-sm font-medium">Deskripsi Singkat</label>
 
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Deskripsi singkat produk"
+                placeholder="Ditampilkan di halaman utama (koleksi)"
                 className="h-12 rounded-2xl px-4"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Deskripsi Lengkap</label>
+
+              <textarea
+                value={longDescription}
+                onChange={(e) => setLongDescription(e.target.value)}
+                placeholder="Deskripsi lengkap yang ditampilkan saat produk diklik"
+                rows={5}
+                className="w-full rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-neutral-400"
               />
             </div>
 

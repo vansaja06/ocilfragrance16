@@ -1,96 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { useFetch } from "@/lib/useFetch";
 import { formatRupiah } from "@/lib/format";
 import { Product } from "@/lib/types";
 
-import OrderModal, { ShopProduct } from "./OrderModal";
-
-const fallbackProducts: ShopProduct[] = [
-  {
-    _id: "fallback-1",
-    category: "Men",
-    name: "Dior Sauvage Eau De Parfum",
-    price: 1950000,
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1000&q=80",
-    description:
-      "Parfum maskulin dengan sentuhan fresh dan aromatik. Karakter tegas untuk pria yang percaya diri.",
-  },
-  {
-    _id: "fallback-2",
-    category: "Women",
-    name: "YSL Libre",
-    price: 2150000,
-    image:
-      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1000&q=80",
-    description:
-      "Perpaduan lavender dan floral yang mewah. Wewangian feminin untuk momen istimewa.",
-  },
-  {
-    _id: "fallback-3",
-    category: "Unisex",
-    name: "Maison Francis Baccarat Rouge 540",
-    price: 4800000,
-    image:
-      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1000&q=80",
-    description:
-      "Aromatic yang manis, woody, dan elegan. Wewangian ikonik yang timeless.",
-  },
-  {
-    _id: "fallback-4",
-    category: "Decant",
-    name: "Bleu De Chanel Decant 10ml",
-    price: 95000,
-    image:
-      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1000&q=80",
-    description:
-      "Kemasan praktis 10ml dari Bleu De Chanel. Cocok untuk dicoba sebelum membeli botol penuh.",
-  },
-  {
-    _id: "fallback-5",
-    category: "Men",
-    name: "Versace Eros",
-    price: 1550000,
-    image:
-      "https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=1000&q=80",
-    description:
-      "Fresh, sweet, dan sensual. Aroma maskulin yang memikat di setiap suasana.",
-  },
-  {
-    _id: "fallback-6",
-    category: "Women",
-    name: "Chanel Coco Mademoiselle",
-    price: 2450000,
-    image:
-      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1000&q=80",
-    description:
-      "Floral oriental yang elegan dan hangat. Simbol kemewahan dari Chanel.",
-  },
-  {
-    _id: "fallback-7",
-    category: "Unisex",
-    name: "Le Labo Santal 33",
-    price: 3950000,
-    image:
-      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=1000&q=80",
-    description:
-      "Woody santal yang hangat dan sedikit creamy. Wewangian modern favorit banyak orang.",
-  },
-  {
-    _id: "fallback-8",
-    category: "Decant",
-    name: "Tom Ford Ombre Leather Decant 5ml",
-    price: 75000,
-    image:
-      "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=1000&q=80",
-    description:
-      "Kulit dan woody yang bold. Kemasan 5ml untuk merasakan kesan mewah Tom Ford.",
-  },
-];
+import { ShopProduct } from "./OrderForm";
 
 interface ProductsResponse {
   products: Product[];
@@ -106,16 +24,20 @@ const mapProduct = (product: Product): ShopProduct => ({
   price: product.price,
   image: product.image ?? "",
   description: product.description,
+  slug: product.slug,
+  hasDecant: product.hasDecant,
+  decants: product.decants,
 });
 
 export default function JustIn() {
+  const router = useRouter();
+
   const { data } = useFetch<ProductsResponse>("/products");
 
-  const products: ShopProduct[] = useMemo(() => {
-    const fetched = data?.products ?? [];
-
-    return fetched.length > 0 ? fetched.map(mapProduct) : fallbackProducts;
-  }, [data]);
+  const products: ShopProduct[] = useMemo(
+    () => (data?.products ?? []).map(mapProduct),
+    [data]
+  );
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(products.map((p) => p.category)))],
@@ -124,13 +46,31 @@ export default function JustIn() {
 
   const [active, setActive] = useState("All");
 
-  const [selected, setSelected] = useState<ShopProduct | null>(null);
-
   const filteredProducts = useMemo(() => {
     if (active === "All") return products;
 
     return products.filter((product) => product.category === active);
   }, [active, products]);
+
+  useEffect(() => {
+    const onFilter = (event: Event) => {
+      const name = (event as CustomEvent<string>).detail;
+
+      if (name && categories.includes(name)) {
+        setActive(name);
+      }
+    };
+
+    window.addEventListener("ocil-fragrance-filter", onFilter);
+
+    return () => {
+      window.removeEventListener("ocil-fragrance-filter", onFilter);
+    };
+  }, [categories]);
+
+  if (products.length === 0) {
+    return null;
+  }
 
   return (
     <section id="just-in" className="bg-white py-20">
@@ -181,7 +121,7 @@ export default function JustIn() {
           {filteredProducts.map((item) => (
             <button
               key={item._id}
-              onClick={() => setSelected(item)}
+              onClick={() => router.push(`/product/${item.slug || item._id}`)}
               className="group cursor-pointer text-left"
             >
               <div className="relative overflow-hidden rounded-2xl bg-neutral-100 aspect-[3/4]">
@@ -229,8 +169,6 @@ export default function JustIn() {
           </div>
         )}
       </div>
-
-      <OrderModal product={selected} onClose={() => setSelected(null)} />
     </section>
   );
 }

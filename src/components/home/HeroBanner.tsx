@@ -8,44 +8,6 @@ import gsap from "gsap";
 import { api } from "@/lib/api";
 import { Banner } from "@/lib/types";
 
-const fallbackBanners: Banner[] = [
-  {
-    _id: "fallback-1",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?q=80&w=2000&auto=format&fit=crop",
-    subtitle: "Ocil Fragrance",
-    title: "The Essence\nof Elegance",
-    description:
-      "Discover an unforgettable fragrance crafted for those who embrace elegance, confidence, and timeless character.",
-    button: "Shop Collection",
-  },
-
-  {
-    _id: "fallback-2",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1594035910387-fea47794261f?q=80&w=2000&auto=format&fit=crop",
-    subtitle: "Signature Collection",
-    title: "Find Your\nSignature Scent",
-    description:
-      "A refined selection of fragrances designed to become part of your everyday identity.",
-    button: "Explore Scents",
-  },
-
-  {
-    _id: "fallback-3",
-    active: true,
-    image:
-      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?q=80&w=2000&auto=format&fit=crop",
-    subtitle: "New Arrival",
-    title: "A Scent\nThat Defines You",
-    description:
-      "Experience sophisticated notes blended with modern character and lasting elegance.",
-    button: "Discover More",
-  },
-];
-
 interface BannersResponse {
   banners: Banner[];
 }
@@ -56,12 +18,10 @@ export default function HeroBanner() {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const [banners, setBanners] = useState<Banner[]>(fallbackBanners);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [current, setCurrent] = useState(0);
 
   const banner = banners[current];
-  const product =
-    typeof banner.product === "object" && banner.product ? banner.product : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -69,8 +29,8 @@ export default function HeroBanner() {
     api
       .get<BannersResponse>("/banners/active")
       .then((res) => {
-        if (!cancelled && res.data?.banners?.length) {
-          setBanners(res.data.banners);
+        if (!cancelled) {
+          setBanners(res.data?.banners ?? []);
           setCurrent(0);
         }
       })
@@ -90,13 +50,19 @@ export default function HeroBanner() {
   };
 
   const goToProduct = () => {
-    if (product) {
-      router.push(`/product/${product.slug || product._id}`);
+    if (!banner?.product) return;
+
+    if (typeof banner.product === "object") {
+      router.push(`/product/${banner.product.slug || banner.product._id}`);
+    } else {
+      router.push(`/product/${banner.product}`);
     }
   };
 
   // Auto Slide
   useEffect(() => {
+    if (banners.length < 2) return;
+
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % banners.length);
     }, 6000);
@@ -106,6 +72,8 @@ export default function HeroBanner() {
 
   // GSAP Animation
   useEffect(() => {
+    if (!contentRef.current) return;
+
     const tl = gsap.timeline();
 
     tl.fromTo(
@@ -127,6 +95,10 @@ export default function HeroBanner() {
     };
   }, [current]);
 
+  if (banners.length === 0) {
+    return null;
+  }
+
   return (
     <section
       id="shop"
@@ -137,7 +109,7 @@ export default function HeroBanner() {
       <img
         src={banner.image}
         alt={banner.title.replace("\n", " ")}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-contain bg-[#f8f8f8]"
       />
 
       {/* Dark Overlay */}

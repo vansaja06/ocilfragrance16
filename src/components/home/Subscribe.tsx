@@ -1,8 +1,41 @@
 "use client";
 
+import { FormEvent, useState } from "react";
+import toast from "react-hot-toast";
 import { ArrowRight } from "lucide-react";
 
+import { api, getErrorMessage } from "@/lib/api";
+
 export default function Subscribe() {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    const normalized = email.trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+      toast.error("Masukkan alamat email yang valid");
+
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      await api.post("/subscribers", { email: normalized, source: "home" });
+
+      toast.success("Berhasil berlangganan. Terima kasih!");
+
+      setEmail("");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gagal berlangganan"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <section
       id="subscribe"
@@ -27,7 +60,7 @@ export default function Subscribe() {
         </p>
 
         {/* Form */}
-        <form className="mt-12 flex justify-center sm:mt-14">
+        <form onSubmit={handleSubmit} className="mt-12 flex justify-center sm:mt-14">
           <div
             className="
               flex
@@ -45,6 +78,8 @@ export default function Subscribe() {
           >
             <input
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
               className="
                 flex-1
@@ -58,6 +93,8 @@ export default function Subscribe() {
             />
 
             <button
+              type="submit"
+              disabled={submitting}
               className="
                 flex
                 w-full
@@ -71,10 +108,11 @@ export default function Subscribe() {
                 text-white
                 transition
                 hover:bg-neutral-800
+                disabled:opacity-60
                 sm:w-auto
               "
             >
-              Subscribe
+              {submitting ? "Subscribing…" : "Subscribe"}
               <ArrowRight size={18} />
             </button>
           </div>

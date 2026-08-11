@@ -5,6 +5,7 @@ import {
   Users,
   Tags,
   Image as ImageIcon,
+  LayoutGrid,
   Settings,
 } from "lucide-react";
 
@@ -43,6 +44,12 @@ export const menus = [
     title: "Banner",
     href: "/admin/banner",
     icon: ImageIcon,
+  },
+
+  {
+    title: "Collection",
+    href: "/admin/collection",
+    icon: LayoutGrid,
   },
 
   {

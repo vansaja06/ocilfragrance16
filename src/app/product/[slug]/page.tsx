@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingBag, Star, Package } from "lucide-react";
 
 import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/home/Footer";
 import LoadingBlock from "@/components/admin/LoadingBlock";
+import OrderForm, { ShopProduct } from "@/components/home/OrderForm";
 
 import { useFetch } from "@/lib/useFetch";
 import { formatRupiah } from "@/lib/format";
@@ -27,6 +28,29 @@ export default function ProductDetailPage() {
   );
 
   const product = data?.product;
+
+  const detailDescription = product?.longDescription || product?.description;
+
+  const [showOrder, setShowOrder] = useState(false);
+
+  const shopProduct: ShopProduct | null = useMemo(() => {
+    if (!product) return null;
+
+    return {
+      _id: product._id,
+      name: product.name,
+      category:
+        typeof product.category === "object" && product.category
+          ? product.category.name || "Lainnya"
+          : product.category || "Lainnya",
+      price: product.price,
+      image: product.image ?? "",
+      description: product.description,
+      slug: product.slug,
+      hasDecant: product.hasDecant,
+      decants: product.decants,
+    };
+  }, [product]);
 
   return (
     <main className="relative w-full min-h-screen bg-white">
@@ -114,19 +138,36 @@ export default function ProductDetailPage() {
                   {formatRupiah(product.price)}
                 </p>
 
-                {product.description && (
-                  <p className="mt-6 max-w-lg text-neutral-600 leading-7">
-                    {product.description}
-                  </p>
+                {detailDescription && (
+                  <div className="mt-6 w-full rounded-2xl border border-neutral-200 bg-[#f8f8f8] p-5">
+                    <p className="text-xs font-medium uppercase tracking-[0.25em] text-neutral-400">
+                      Deskripsi
+                    </p>
+
+                    <p className="mt-3 text-neutral-600 leading-7 whitespace-pre-line break-words">
+                      {detailDescription}
+                    </p>
+                  </div>
                 )}
 
                 <button
-                  className="mt-10 flex items-center justify-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition hover:scale-105 hover:bg-neutral-800"
+                  onClick={() => setShowOrder((v) => !v)}
+                  className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition hover:scale-105 hover:bg-neutral-800"
                 >
                   <ShoppingBag size={18} />
 
-                  Beli Sekarang
+                  {showOrder ? "Tutup Formulir Pemesanan" : "Beli Sekarang"}
                 </button>
+
+                {showOrder && shopProduct && (
+                  <div className="mt-8 rounded-3xl border border-neutral-200 bg-[#f8f8f8] p-6 lg:p-8">
+                    <h2 className="text-lg font-semibold text-black">
+                      Lengkapi Data Pemesanan
+                    </h2>
+
+                    <OrderForm product={shopProduct} />
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -8,18 +8,26 @@ export interface Category {
   createdAt?: string;
 }
 
+export interface DecantOption {
+  size: string;
+  price: number;
+}
+
 export interface Product {
   _id: string;
   name: string;
   slug?: string;
   category?: string | Category | null;
   description?: string;
+  longDescription?: string;
   price: number;
   image?: string;
   stock: number;
   rating: number;
   sold: number;
   featured: boolean;
+  hasDecant?: boolean;
+  decants?: DecantOption[];
   sizes?: string[];
   createdAt?: string;
 }
@@ -41,6 +49,8 @@ export interface Order {
   items: OrderItem[];
   total: number;
   payment?: string;
+  paymentProof?: string;
+  shipping?: string;
   status: OrderStatus;
   createdAt?: string;
 }
@@ -63,6 +73,15 @@ export interface Banner {
   description?: string;
   button?: string;
   image?: string;
+  active: boolean;
+  createdAt?: string;
+}
+
+export interface Collection {
+  _id: string;
+  leftProduct?: Product | null;
+  topRightProduct?: Product | null;
+  bottomLeftProduct?: Product | null;
   active: boolean;
   createdAt?: string;
 }

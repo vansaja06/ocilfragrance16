@@ -1,13 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
-import Image from "next/image";
+import { Search, ShoppingBag, User, Menu, X, PackageSearch } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { useFetch } from "@/lib/useFetch";
+import { formatRupiah } from "@/lib/format";
+import { getLocalOrders } from "@/lib/orders";
+import { onCartChanged } from "@/lib/dataEvents";
+import { Product, Settings } from "@/lib/types";
+
 gsap.registerPlugin(ScrollToPlugin);
+
+interface SettingsResponse {
+  settings: Settings;
+}
+
+interface ProductsResponse {
+  products: Product[];
+}
 
 const menus = [
   { title: "ocilfragrance16", id: "shop", brand: true },
@@ -23,9 +36,34 @@ const glass =
 export default function Navbar() {
   const router = useRouter();
 
+  const { data: settingsData } = useFetch<SettingsResponse>("/settings");
+  const { data: productData } = useFetch<ProductsResponse>("/products");
+
+  const storeName =
+    settingsData?.settings?.storeName?.trim() || "ocilfragrance16";
+  const products = useMemo(() => productData?.products ?? [], [productData]);
+
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [active, setActive] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    const sync = () => setOrderCount(getLocalOrders().length);
+
+    sync();
+
+    const unsubscribe = onCartChanged(sync);
+
+    window.addEventListener("storage", sync);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
 
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const desktopMenuRef = useRef<HTMLDivElement>(null);
@@ -178,6 +216,124 @@ export default function Navbar() {
     setMobileMenu(false);
   };
 
+  // ================= SEARCH RESULTS =================
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    if (!q) return [];
+
+    return products
+      .filter((product) => product.name.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [query, products]);
+
+  const goToProduct = (product: Product) => {
+    router.push(`/product/${product.slug || product._id}`);
+
+    setQuery("");
+    setOpenSearch(false);
+  };
+
+  const submitSearch = () => {
+    const value = query.trim();
+
+    if (!value) return;
+
+    router.push(`/search?q=${encodeURIComponent(value)}`);
+
+    setQuery("");
+    setOpenSearch(false);
+    setMobileMenu(false);
+  };
+
+  const toggleSearch = () => {
+    setOpenSearch((v) => {
+      if (v) setQuery("");
+      return !v;
+    });
+  };
+
+  const searchResultsPanel = (mobile: boolean) =>
+    results.length > 0 ? (
+      <div
+        className={`overflow-hidden rounded-2xl bg-white shadow-2xl border border-neutral-100 ${
+          mobile ? "absolute left-4 right-4 top-[72px] z-50" : "absolute left-8 right-8 top-14 z-50"
+        }`}
+      >
+        {results.map((product) => (
+          <button
+            key={product._id}
+            onClick={() => goToProduct(product)}
+            className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-neutral-50"
+          >
+            {product.image ? (
+              <img
+                src={product.image}
+                alt={product.name}
+                className="h-10 w-10 shrink-0 rounded-xl object-cover"
+              />
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
+                <PackageSearch size={16} />
+              </div>
+            )}
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-black">
+                {product.name}
+              </p>
+
+              <p className="text-xs text-neutral-500">
+                {formatRupiah(product.price)}
+              </p>
+            </div>
+          </button>
+        ))}
+
+        <button
+          onClick={submitSearch}
+          className="flex w-full items-center justify-center gap-2 border-t border-neutral-100 px-4 py-3 text-sm font-medium text-neutral-500 transition hover:bg-neutral-50 hover:text-black"
+        >
+          <Search size={14} />
+
+          Lihat semua hasil untuk &quot;{query.trim()}&quot;
+        </button>
+      </div>
+    ) : null;
+
+  const cartButton = (
+    <button
+      onClick={() => router.push("/orders")}
+      className="relative flex items-center justify-center"
+      aria-label="Lihat pesanan saya"
+    >
+      <span className="relative flex items-center justify-center">
+        {orderCount > 0 && (
+          <span
+            className="absolute inset-0 rounded-full animate-[ocilPing_1.2s_ease-out_infinite]"
+            style={{
+              border: "2px solid rgba(0,0,0,0.35)",
+            }}
+          />
+        )}
+
+        <ShoppingBag
+          size={20}
+          className="transition-transform duration-300 hover:scale-110"
+        />
+      </span>
+
+      {orderCount > 0 && (
+        <span
+          key={orderCount}
+          className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-white animate-[ocilPop_0.4s_ease-out]"
+        >
+          {orderCount > 99 ? "99+" : orderCount}
+        </span>
+      )}
+    </button>
+  );
+
   return (
     <nav className="fixed top-0 left-0 w-full h-20 bg-white/60 backdrop-blur-lg z-50">
       {/* MOBILE MENU */}
@@ -193,7 +349,7 @@ export default function Navbar() {
               menu.brand ? "text-xl font-bold tracking-tight" : ""
             }`}
           >
-            {menu.title}
+            {menu.brand ? storeName : menu.title}
           </button>
         ))}
       </div>
@@ -224,7 +380,7 @@ export default function Navbar() {
                     : ""
                 }`}
               >
-                {menu.title}
+                {menu.brand ? storeName : menu.title}
 
                 {/* UNDERLINE */}
                 <span
@@ -249,14 +405,19 @@ export default function Navbar() {
         <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-8">
           <div
             ref={desktopSearchRef}
-            className={`flex items-center h-11 rounded-full px-5 ${glass}`}
+            className={`relative flex items-center h-11 rounded-full px-5 ${glass}`}
             style={{ opacity: 0, transform: "scaleX(0)" }}
           >
             <input
               ref={desktopInputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               placeholder="Search Product..."
               className="w-full bg-transparent outline-none text-sm text-black"
             />
+
+            {searchResultsPanel(false)}
           </div>
         </div>
 
@@ -264,10 +425,12 @@ export default function Navbar() {
         <div className="flex items-center gap-3 lg:gap-6">
           {/* DESKTOP ICON */}
           <div className="hidden lg:flex items-center gap-6 text-black">
-            <button onClick={() => setOpenSearch((v) => !v)}>
+            <button onClick={toggleSearch}>
               <Search size={20} />
             </button>
-            <ShoppingBag size={20} />
+
+            {cartButton}
+
             <button onClick={() => router.push("/admin/login")}>
               <User
                 size={20}
@@ -279,10 +442,12 @@ export default function Navbar() {
           {/* MOBILE ICON */}
           {!mobileMenu && (
             <div className="flex lg:hidden items-center gap-3 text-black">
-              <button onClick={() => setOpenSearch((v) => !v)}>
+              <button onClick={toggleSearch}>
                 <Search size={20} />
               </button>
-              <ShoppingBag size={20} />
+
+              {cartButton}
+
               <button onClick={() => router.push("/admin/login")}>
                 <User
                   size={20}
@@ -304,17 +469,22 @@ export default function Navbar() {
 
       {/* MOBILE SEARCH */}
       {!mobileMenu && (
-        <div className="lg:hidden overflow-hidden">
+        <div className="lg:hidden overflow-visible">
           <div
             ref={mobileSearchRef}
-            className={`flex items-center h-12 mx-4 my-3 px-4 rounded-full bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]`}
+            className={`relative flex items-center h-12 mx-4 my-3 px-4 rounded-full bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]`}
             style={{ opacity: 0, transform: "scaleX(0)" }}
           >
             <input
               ref={mobileInputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               placeholder="Search Product..."
               className="w-full outline-none text-sm bg-transparent text-black"
             />
+
+            {searchResultsPanel(true)}
           </div>
         </div>
       )}

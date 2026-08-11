@@ -9,9 +9,29 @@ export default class OrderController {
 
   list = async (req, res, next) => {
     try {
-      const orders = await this.#orderService.list();
+      const orders = await this.#orderService.list(req.query);
 
       res.json({ success: true, orders });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  create = async (req, res, next) => {
+    try {
+      const order = await this.#orderService.create(req.body);
+
+      res.status(201).json({ success: true, order });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  getById = async (req, res, next) => {
+    try {
+      const order = await this.#orderService.getById(req.params.id);
+
+      res.json({ success: true, order });
     } catch (error) {
       next(error);
     }

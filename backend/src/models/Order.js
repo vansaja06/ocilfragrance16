@@ -75,6 +75,16 @@ const OrderSchema = new Schema(
       default: "",
     },
 
+    paymentProof: {
+      type: String,
+      default: "",
+    },
+
+    shipping: {
+      type: String,
+      default: "",
+    },
+
     status: {
       type: String,
       enum: ["Menunggu", "Diproses", "Selesai", "Dibatalkan"],

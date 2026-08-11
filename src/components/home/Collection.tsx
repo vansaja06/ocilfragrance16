@@ -1,32 +1,82 @@
 "use client";
 
-const collections = [
-  {
-    id: 1,
-    title: "Discover Our Signature Fragrances",
-    subtitle: "SIGNATURE COLLECTION",
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200&q=80",
-    button: "Shop Now",
-  },
-  {
-    id: 2,
-    title: "Luxury Perfumes From World Famous Brands",
-    subtitle: "LUXURY COLLECTION",
-    image:
-      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1400&q=80",
-    button: "Explore",
-  },
-  {
-    id: 3,
-    title: "Premium Decant Collection",
-    subtitle: "DECANT",
-    image: "https://pngimg.com/d/perfume_PNG10216.png",
-    button: "Browse",
-  },
-];
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+
+import { useFetch } from "@/lib/useFetch";
+import { Collection as CollectionConfig, Product } from "@/lib/types";
+
+interface CollectionsResponse {
+  collection: CollectionConfig;
+}
+
+interface CollectionCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  product: Product | null;
+}
 
 export default function Collection() {
+  const router = useRouter();
+
+  const { data: collectionData } =
+    useFetch<CollectionsResponse>("/collections");
+
+  const cards: CollectionCard[] = useMemo(() => {
+    const slots = [
+      collectionData?.collection?.leftProduct,
+      collectionData?.collection?.topRightProduct,
+      collectionData?.collection?.bottomLeftProduct,
+    ];
+
+    return slots.map((product) => {
+      if (typeof product !== "object" || !product) {
+        return {
+          id: "empty",
+          title: "Collection",
+          subtitle: "OCIL FRAGRANCE",
+          image: "",
+          product: null,
+        };
+      }
+
+      const categoryName =
+        typeof product.category === "object" && product.category
+          ? product.category.name
+          : null;
+
+      return {
+        id: product._id,
+        title: categoryName || product.name,
+        subtitle: categoryName ? categoryName.toUpperCase() : "COLLECTION",
+        image: product.image || "",
+        product,
+      };
+    });
+  }, [collectionData]);
+
+  if (!cards.some((card) => card.product)) {
+    return null;
+  }
+
+  const [left, topRight, bottomLeft] = cards;
+
+  const handleCardClick = (card: CollectionCard) => {
+    if (card.product) {
+      router.push(`/product/${card.product.slug || card.product._id}`);
+
+      return;
+    }
+
+    const el = document.getElementById("just-in");
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <section
       id="collection"
@@ -61,45 +111,10 @@ export default function Collection() {
               lg:h-auto
             "
           >
-            <img
-              src={collections[0].image}
-              alt={collections[0].title}
-              className="
-                w-full
-                h-full
-                object-cover
-                transition-transform
-                duration-700
-                group-hover:scale-110
-              "
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-            <div className="absolute bottom-8 left-8 text-white">
-              <p className="text-xs tracking-[0.35em]">
-                {collections[0].subtitle}
-              </p>
-
-              <h3 className="mt-3 text-3xl max-w-sm leading-tight">
-                {collections[0].title}
-              </h3>
-
-              <button className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105">
-                {collections[0].button}
-              </button>
-            </div>
-          </div>
-
-          {/* RIGHT */}
-
-          <div className="grid gap-6 lg:col-span-2 lg:grid-rows-[1.2fr_1fr]">
-            {/* TOP */}
-
-            <div className="relative rounded-3xl overflow-hidden group h-[350px] md:h-[450px]">
+            {left.image ? (
               <img
-                src={collections[1].image}
-                alt={collections[1].title}
+                src={left.image}
+                alt={left.title}
                 className="
                   w-full
                   h-full
@@ -109,20 +124,74 @@ export default function Collection() {
                   group-hover:scale-110
                 "
               />
+            ) : (
+              <div className="w-full h-full bg-neutral-100" />
+            )}
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+            <div className="absolute bottom-8 left-8 text-white">
+              <p className="text-xs tracking-[0.35em]">{left.subtitle}</p>
+
+              <h3 className="mt-3 text-3xl max-w-sm leading-tight">
+                {left.title}
+              </h3>
+
+              <button
+                onClick={() => handleCardClick(left)}
+                className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105"
+              >
+                Shop Now
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+
+          <div className="grid gap-6 lg:col-span-2 lg:grid-rows-[1.2fr_1fr]">
+            {/* TOP */}
+
+            <div
+              className="relative rounded-3xl overflow-hidden group h-[350px] md:h-[450px]"
+              onClick={() => handleCardClick(topRight)}
+            >
+              {topRight.image ? (
+                <img
+                  src={topRight.image}
+                  alt={topRight.title}
+                  className="
+                    w-full
+                    h-full
+                    object-cover
+                    transition-transform
+                    duration-700
+                    group-hover:scale-110
+                  "
+                />
+              ) : (
+                <div className="w-full h-full bg-neutral-100" />
+              )}
 
               <div className="absolute inset-0 bg-black/35" />
 
               <div className="absolute left-8 top-8 text-white">
                 <p className="text-xs tracking-[0.35em]">
-                  {collections[1].subtitle}
+                  {topRight.subtitle}
                 </p>
 
                 <h3 className="mt-4 text-4xl max-w-lg leading-tight">
-                  {collections[1].title}
+                  {topRight.title}
                 </h3>
 
-                <button className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105">
-                  {collections[1].button}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    handleCardClick(topRight);
+                  }}
+                  className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105"
+                >
+                  Explore
                 </button>
               </div>
             </div>
@@ -132,38 +201,51 @@ export default function Collection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* DECANT */}
 
-              <div className="rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between">
+              <div
+                className="rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between cursor-pointer"
+                onClick={() => handleCardClick(bottomLeft)}
+              >
                 <div>
                   <p className="text-xs tracking-[0.35em] text-neutral-400">
-                    {collections[2].subtitle}
+                    {bottomLeft.subtitle}
                   </p>
 
                   <h3 className="mt-4 text-3xl leading-tight max-w-xs">
-                    {collections[2].title}
+                    {bottomLeft.title}
                   </h3>
 
-                  <p className="mt-5 text-neutral-500">
-                    Experience luxury fragrances in 5ml, 10ml and 30ml sizes.
+                  <p className="mt-5 text-neutral-500 line-clamp-3">
+                    {bottomLeft.product?.description ||
+                      "Experience luxury fragrances in 5ml, 10ml and 30ml sizes."}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-end mt-8">
-                  <button className="underline underline-offset-4">
-                    {collections[2].button}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+
+                      handleCardClick(bottomLeft);
+                    }}
+                    className="underline underline-offset-4"
+                  >
+                    Browse
                   </button>
 
-                  <img
-                    src={collections[2].image}
-                    alt={collections[2].title}
-                    className="
-                      w-32
-                      md:w-40
-                      object-contain
-                      transition-all
-                      duration-500
-                      hover:scale-110
-                    "
-                  />
+                  {bottomLeft.image ? (
+                    <img
+                      src={bottomLeft.image}
+                      alt={bottomLeft.title}
+                      className="
+                        w-32
+                        md:w-40
+                        object-contain
+                        transition-all
+                        duration-500
+                        hover:scale-110
+                      "
+                    />
+                  ) : null}
                 </div>
               </div>
 
@@ -193,7 +275,10 @@ export default function Collection() {
                   Discount For Selected Perfumes
                 </p>
 
-                <button className="rounded-full bg-white text-black px-8 py-3 transition hover:scale-105">
+                <button
+                  onClick={() => handleCardClick(topRight)}
+                  className="rounded-full bg-white text-black px-8 py-3 transition hover:scale-105"
+                >
                   Shop Now
                 </button>
               </div>

@@ -6,8 +6,10 @@ import categoryRoutes from "./categoryRoutes.js";
 import orderRoutes from "./orderRoutes.js";
 import customerRoutes from "./customerRoutes.js";
 import bannerRoutes from "./bannerRoutes.js";
+import collectionRoutes from "./collectionRoutes.js";
 import settingRoutes from "./settingRoutes.js";
 import statsRoutes from "./statsRoutes.js";
+import subscriberRoutes from "./subscriberRoutes.js";
 
 const router = Router();
 
@@ -18,7 +20,9 @@ router.use(categoryRoutes);
 router.use(orderRoutes);
 router.use(customerRoutes);
 router.use(bannerRoutes);
+router.use(collectionRoutes);
 router.use(settingRoutes);
 router.use(statsRoutes);
+router.use(subscriberRoutes);
 
 export default router;

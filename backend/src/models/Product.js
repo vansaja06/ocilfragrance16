@@ -25,6 +25,11 @@ const ProductSchema = new Schema(
       default: "",
     },
 
+    longDescription: {
+      type: String,
+      default: "",
+    },
+
     price: {
       type: Number,
       required: true,
@@ -54,6 +59,29 @@ const ProductSchema = new Schema(
     featured: {
       type: Boolean,
       default: false,
+    },
+
+    hasDecant: {
+      type: Boolean,
+      default: false,
+    },
+
+    decants: {
+      type: [
+        {
+          size: {
+            type: String,
+            required: true,
+          },
+
+          price: {
+            type: Number,
+            required: true,
+            default: 0,
+          },
+        },
+      ],
+      default: [],
     },
 
     sizes: {
