@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
+import SafePointerCapture from "@/components/SafePointerCapture";
 
 export const metadata: Metadata = {
   title: "ocilfragrance",
@@ -15,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-white antialiased">
+        <SafePointerCapture />
         {children}
       </body>
     </html>

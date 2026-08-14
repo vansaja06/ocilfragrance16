@@ -402,7 +402,7 @@ export default function Navbar() {
         </div>
 
         {/* DESKTOP SEARCH */}
-        <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-8">
+        <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-8 pointer-events-none">
           <div
             ref={desktopSearchRef}
             className={`relative flex items-center h-11 rounded-full px-5 ${glass}`}
@@ -469,7 +469,7 @@ export default function Navbar() {
 
       {/* MOBILE SEARCH */}
       {!mobileMenu && (
-        <div className="lg:hidden overflow-visible">
+        <div className="lg:hidden overflow-visible pointer-events-none">
           <div
             ref={mobileSearchRef}
             className={`relative flex items-center h-12 mx-4 my-3 px-4 rounded-full bg-white/60 backdrop-blur-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)]`}
