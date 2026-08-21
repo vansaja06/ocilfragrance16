@@ -1,5 +1,7 @@
 export type OrderStatus = "Menunggu" | "Diproses" | "Selesai" | "Dibatalkan";
 
+export type SubscriberStatus = "Menunggu" | "Disetujui" | "Ditolak" | "Berhenti";
+
 export interface Category {
   _id: string;
   name: string;
@@ -62,6 +64,28 @@ export interface Customer {
   phone?: string;
   address?: string;
   city?: string;
+  createdAt?: string;
+}
+
+export interface Subscriber {
+  _id: string;
+  email: string;
+  name?: string;
+  phone?: string;
+  payment?: string;
+  paymentProof?: string;
+  status: SubscriberStatus;
+  expiresAt?: string;
+  source?: string;
+  createdAt?: string;
+}
+
+export interface Discount {
+  _id: string;
+  name: string;
+  percentage: number;
+  productId?: string | Product | null;
+  active: boolean;
   createdAt?: string;
 }
 

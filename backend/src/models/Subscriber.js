@@ -12,6 +12,37 @@ const SubscriberSchema = new Schema(
       trim: true,
     },
 
+    name: {
+      type: String,
+      default: "",
+    },
+
+    phone: {
+      type: String,
+      default: "",
+    },
+
+    payment: {
+      type: String,
+      default: "",
+    },
+
+    paymentProof: {
+      type: String,
+      default: "",
+    },
+
+    status: {
+      type: String,
+      enum: ["Menunggu", "Disetujui", "Ditolak", "Berhenti"],
+      default: "Menunggu",
+    },
+
+    expiresAt: {
+      type: Date,
+      default: null,
+    },
+
     source: {
       type: String,
       default: "home",

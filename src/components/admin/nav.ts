@@ -7,6 +7,8 @@ import {
   Image as ImageIcon,
   LayoutGrid,
   Settings,
+  Crown,
+  Percent,
 } from "lucide-react";
 
 export const menus = [
@@ -32,6 +34,18 @@ export const menus = [
     title: "Pelanggan",
     href: "/admin/customers",
     icon: Users,
+  },
+
+  {
+    title: "Subscriber",
+    href: "/admin/subscribers",
+    icon: Crown,
+  },
+
+  {
+    title: "Diskon",
+    href: "/admin/discounts",
+    icon: Percent,
   },
 
   {

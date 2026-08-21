@@ -1,20 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ShoppingBag, Star, Package } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Star, Package, Crown } from "lucide-react";
 
 import Navbar from "@/components/home/Navbar";
 import Footer from "@/components/home/Footer";
 import LoadingBlock from "@/components/admin/LoadingBlock";
 import OrderForm, { ShopProduct } from "@/components/home/OrderForm";
 
+import { api } from "@/lib/api";
 import { useFetch } from "@/lib/useFetch";
 import { formatRupiah } from "@/lib/format";
-import { Product } from "@/lib/types";
+import { getSubscriberEmail } from "@/lib/subscription";
+import { Product, Discount } from "@/lib/types";
 
 interface ProductResponse {
   product: Product;
+}
+
+interface DiscountsResponse {
+  discounts: Discount[];
+}
+
+interface SubscribedResponse {
+  subscribed: boolean;
 }
 
 export default function ProductDetailPage() {
@@ -33,6 +43,58 @@ export default function ProductDetailPage() {
 
   const [showOrder, setShowOrder] = useState(false);
 
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [discounts, setDiscounts] = useState<Discount[]>([]);
+
+  useEffect(() => {
+    const email = getSubscriberEmail();
+
+    if (!email) return;
+
+    api
+      .get<SubscribedResponse>(
+        `/subscribers/status?email=${encodeURIComponent(email)}`
+      )
+      .then((res) => {
+        if (res.data.subscribed) {
+          setIsSubscribed(true);
+
+          return api.get<DiscountsResponse>("/discounts/active");
+        }
+      })
+      .then((res) => {
+        if (res?.data?.discounts) {
+          setDiscounts(res.data.discounts);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const applicableDiscount = useMemo(() => {
+    if (!product || !isSubscribed || discounts.length === 0) return null;
+
+    const productDiscount = discounts.find(
+      (d) =>
+        d.productId &&
+        typeof d.productId === "string" &&
+        d.productId === product._id
+    );
+
+    if (productDiscount) return productDiscount;
+
+    const globalDiscount = discounts.find(
+      (d) => !d.productId || d.productId === null
+    );
+
+    return globalDiscount || null;
+  }, [product, isSubscribed, discounts]);
+
+  const discountedPrice = useMemo(() => {
+    if (!product || !applicableDiscount) return null;
+
+    return Math.round(product.price * (1 - applicableDiscount.percentage / 100));
+  }, [product, applicableDiscount]);
+
   const shopProduct: ShopProduct | null = useMemo(() => {
     if (!product) return null;
 
@@ -43,14 +105,14 @@ export default function ProductDetailPage() {
         typeof product.category === "object" && product.category
           ? product.category.name || "Lainnya"
           : product.category || "Lainnya",
-      price: product.price,
+      price: discountedPrice ?? product.price,
       image: product.image ?? "",
       description: product.description,
       slug: product.slug,
       hasDecant: product.hasDecant,
       decants: product.decants,
     };
-  }, [product]);
+  }, [product, discountedPrice]);
 
   return (
     <main className="relative w-full min-h-screen bg-white">
@@ -134,9 +196,39 @@ export default function ProductDetailPage() {
                   </span>
                 </div>
 
-                <p className="mt-6 text-3xl font-semibold text-black">
-                  {formatRupiah(product.price)}
-                </p>
+                <div className="mt-6 flex items-center gap-3">
+                  {discountedPrice ? (
+                    <>
+                      <p className="text-3xl font-semibold text-black">
+                        {formatRupiah(discountedPrice)}
+                      </p>
+                      <p className="text-lg text-neutral-400 line-through">
+                        {formatRupiah(product.price)}
+                      </p>
+                      <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        -{applicableDiscount!.percentage}%
+                      </span>
+                    </>
+                  ) : (
+                    <p className="text-3xl font-semibold text-black">
+                      {formatRupiah(product.price)}
+                    </p>
+                  )}
+                </div>
+
+                {isSubscribed && applicableDiscount && (
+                  <div className="mt-3 flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-xs font-medium text-amber-700">
+                    <Crown size={14} />
+                    Harga subscriber: diskon {applicableDiscount.percentage}%
+                  </div>
+                )}
+
+                {!isSubscribed && (
+                  <div className="mt-3 flex items-center gap-2 rounded-full bg-neutral-50 px-4 py-2 text-xs text-neutral-500">
+                    <Crown size={14} />
+                    Subscribe untuk mendapatkan diskon eksklusif
+                  </div>
+                )}
 
                 {detailDescription && (
                   <div className="mt-6 w-full rounded-2xl border border-neutral-200 bg-[#f8f8f8] p-5">

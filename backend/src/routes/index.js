@@ -10,6 +10,7 @@ import collectionRoutes from "./collectionRoutes.js";
 import settingRoutes from "./settingRoutes.js";
 import statsRoutes from "./statsRoutes.js";
 import subscriberRoutes from "./subscriberRoutes.js";
+import discountRoutes from "./discountRoutes.js";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use(collectionRoutes);
 router.use(settingRoutes);
 router.use(statsRoutes);
 router.use(subscriberRoutes);
+router.use(discountRoutes);
 
 export default router;

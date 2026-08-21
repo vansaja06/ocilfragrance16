@@ -1,5 +1,6 @@
 import OrderRepository from "../repositories/OrderRepository.js";
 import ProductRepository from "../repositories/ProductRepository.js";
+import CustomerRepository from "../repositories/CustomerRepository.js";
 import ApiError from "../utils/ApiError.js";
 
 const MONGO_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
@@ -7,13 +8,16 @@ const MONGO_ID_PATTERN = /^[0-9a-fA-F]{24}$/;
 export default class OrderService {
   #orderRepository;
   #productRepository;
+  #customerRepository;
 
   constructor(
     orderRepository = new OrderRepository(),
-    productRepository = new ProductRepository()
+    productRepository = new ProductRepository(),
+    customerRepository = new CustomerRepository()
   ) {
     this.#orderRepository = orderRepository;
     this.#productRepository = productRepository;
+    this.#customerRepository = customerRepository;
   }
 
   async list({ limit } = {}) {
@@ -78,6 +82,12 @@ export default class OrderService {
     });
 
     await this.#increaseSales(items);
+    await this.#upsertCustomer({
+      customerName,
+      customerEmail: customerEmail || "",
+      phone,
+      address,
+    });
 
     return order;
   }
@@ -143,5 +153,40 @@ export default class OrderService {
         stock: Math.max(0, (product.stock || 0) - item.qty),
       });
     }
+  }
+
+  async #upsertCustomer({ customerName, customerEmail, phone, address }) {
+    const email = (customerEmail || "").trim().toLowerCase();
+    const name = (customerName || "").trim();
+    const phoneValue = (phone || "").trim();
+    const addressValue = (address || "").trim();
+
+    let existing = null;
+
+    if (email) {
+      existing = await this.#customerRepository.findByEmail(email);
+    }
+
+    if (!existing && phoneValue) {
+      existing = await this.#customerRepository.findOne({
+        phone: phoneValue,
+      });
+    }
+
+    if (existing) {
+      return this.#customerRepository.updateById(existing._id, {
+        name: name || existing.name,
+        email: email || existing.email,
+        phone: phoneValue || existing.phone,
+        address: addressValue || existing.address,
+      });
+    }
+
+    return this.#customerRepository.create({
+      name,
+      email,
+      phone: phoneValue,
+      address: addressValue,
+    });
   }
 }
