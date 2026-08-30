@@ -11,6 +11,7 @@ import settingRoutes from "./settingRoutes.js";
 import statsRoutes from "./statsRoutes.js";
 import subscriberRoutes from "./subscriberRoutes.js";
 import discountRoutes from "./discountRoutes.js";
+import limitedOfferRoutes from "./limitedOfferRoutes.js";
 
 const router = Router();
 
@@ -26,5 +27,6 @@ router.use(settingRoutes);
 router.use(statsRoutes);
 router.use(subscriberRoutes);
 router.use(discountRoutes);
+router.use(limitedOfferRoutes);
 
 export default router;

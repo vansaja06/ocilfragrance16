@@ -110,6 +110,17 @@ export interface Collection {
   createdAt?: string;
 }
 
+export interface LimitedOffer {
+  _id: string;
+  product?: Product | null;
+  label: string;
+  discountText: string;
+  description: string;
+  buttonText: string;
+  active: boolean;
+  createdAt?: string;
+}
+
 export interface Settings {
   storeName?: string;
   tagline?: string;

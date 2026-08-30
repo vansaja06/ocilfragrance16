@@ -1,13 +1,27 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useFetch } from "@/lib/useFetch";
-import { Collection as CollectionConfig, Product } from "@/lib/types";
+import { api } from "@/lib/api";
+import { getSubscriberEmail } from "@/lib/subscription";
+import {
+  Collection as CollectionConfig,
+  LimitedOffer,
+  Product,
+} from "@/lib/types";
 
 interface CollectionsResponse {
   collection: CollectionConfig;
+}
+
+interface LimitedOfferResponse {
+  limitedOffer: LimitedOffer;
+}
+
+interface SubscribedResponse {
+  subscribed: boolean;
 }
 
 interface CollectionCard {
@@ -23,6 +37,24 @@ export default function Collection() {
 
   const { data: collectionData } =
     useFetch<CollectionsResponse>("/collections");
+
+  const { data: offerData } =
+    useFetch<LimitedOfferResponse>("/limited-offers");
+
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    const email = getSubscriberEmail();
+
+    if (!email) return;
+
+    api
+      .get<SubscribedResponse>(
+        `/subscribers/status?email=${encodeURIComponent(email)}`
+      )
+      .then((res) => setIsSubscribed(Boolean(res.data.subscribed)))
+      .catch(() => {});
+  }, []);
 
   const cards: CollectionCard[] = useMemo(() => {
     const slots = [
@@ -62,6 +94,23 @@ export default function Collection() {
   }
 
   const [left, topRight, bottomLeft] = cards;
+
+  const promo = offerData?.limitedOffer;
+
+  const promoProduct =
+    promo?.product && typeof promo.product === "object"
+      ? promo.product
+      : null;
+
+  const showPromo = Boolean(
+    isSubscribed && promo?.active !== false && promoProduct
+  );
+
+  const handlePromoClick = () => {
+    if (promoProduct) {
+      router.push(`/product/${promoProduct.slug || promoProduct._id}`);
+    }
+  };
 
   const handleCardClick = (card: CollectionCard) => {
     if (card.product) {
@@ -198,11 +247,15 @@ export default function Collection() {
 
             {/* BOTTOM */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              className={`grid gap-6 ${showPromo ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
+            >
               {/* DECANT */}
 
               <div
-                className="rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between cursor-pointer"
+                className={`rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between cursor-pointer ${
+                  showPromo ? "" : "md:col-span-2"
+                }`}
                 onClick={() => handleCardClick(bottomLeft)}
               >
                 <div>
@@ -249,39 +302,44 @@ export default function Collection() {
                 </div>
               </div>
 
-              {/* PROMO */}
+              {/* PROMO — hanya untuk subscriber */}
 
-              <div
-                className="
-                  rounded-3xl
-                  bg-gradient-to-br
-                  from-black
-                  to-neutral-800
-                  text-white
-                  flex
-                  flex-col
-                  justify-center
-                  items-center
-                  py-14
-                "
-              >
-                <p className="uppercase tracking-[0.3em] text-sm text-neutral-300">
-                  Limited Offer
-                </p>
-
-                <h1 className="text-6xl font-bold my-4">30%</h1>
-
-                <p className="text-neutral-300 mb-8">
-                  Discount For Selected Perfumes
-                </p>
-
-                <button
-                  onClick={() => handleCardClick(topRight)}
-                  className="rounded-full bg-white text-black px-8 py-3 transition hover:scale-105"
+              {showPromo ? (
+                <div
+                  className="
+                    rounded-3xl
+                    bg-gradient-to-br
+                    from-black
+                    to-neutral-800
+                    text-white
+                    flex
+                    flex-col
+                    justify-center
+                    items-center
+                    py-14
+                  "
                 >
-                  Shop Now
-                </button>
-              </div>
+                  <p className="uppercase tracking-[0.3em] text-sm text-neutral-300">
+                    {promo?.label || "Limited Offer"}
+                  </p>
+
+                  <h1 className="text-6xl font-bold my-4">
+                    {promo?.discountText || "30%"}
+                  </h1>
+
+                  <p className="text-neutral-300 mb-8">
+                    {promo?.description ||
+                      "Discount For Selected Perfumes"}
+                  </p>
+
+                  <button
+                    onClick={handlePromoClick}
+                    className="rounded-full bg-white text-black px-8 py-3 transition hover:scale-105"
+                  >
+                    {promo?.buttonText || "Shop Now"}
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

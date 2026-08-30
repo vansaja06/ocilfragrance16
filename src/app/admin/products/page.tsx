@@ -12,6 +12,7 @@ import {
   Tags,
   Search,
   PackageSearch,
+  X,
 } from "lucide-react";
 
 import DashboardLayout from "@/components/admin/DashboardLayout";
@@ -420,7 +421,10 @@ export default function ProductsPage() {
               <label className="text-sm font-medium">Kategori</label>
 
               <div className="flex items-center gap-2">
-                <Select value={category} onValueChange={setCategory}>
+                <Select
+                  value={category || undefined}
+                  onValueChange={setCategory}
+                >
                   <SelectTrigger className="h-12 w-full flex-1 rounded-2xl px-4">
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
@@ -439,6 +443,18 @@ export default function ProductsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+
+                {category && (
+                  <button
+                    type="button"
+                    onClick={() => setCategory("")}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-neutral-200 text-neutral-500 transition hover:border-red-200 hover:bg-red-50 hover:text-red-500"
+                    aria-label="Kosongkan kategori"
+                    title="Kosongkan kategori"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
 
                 <button
                   type="button"

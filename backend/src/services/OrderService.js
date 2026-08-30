@@ -62,6 +62,8 @@ export default class OrderService {
       }
     }
 
+    await this.#validateStock(items);
+
     const total = items.reduce(
       (sum, item) => sum + item.price * item.qty,
       0
@@ -136,6 +138,35 @@ export default class OrderService {
     ].join("");
 
     return `INV-${ymd}-${String(count + 1).padStart(5, "0")}`;
+  }
+
+  async #validateStock(items) {
+    for (const item of items) {
+      const productId = item.product;
+
+      if (!productId || !MONGO_ID_PATTERN.test(productId)) continue;
+
+      const product = await this.#productRepository.findById(productId);
+
+      if (!product) continue;
+
+      const available = product.stock || 0;
+      const requested = item.qty || 0;
+
+      if (available <= 0) {
+        throw ApiError.badRequest(
+          `Maaf, produk ${product.name} sedang habis dan tidak dapat dipesan`,
+          { includeSuccess: true }
+        );
+      }
+
+      if (requested > available) {
+        throw ApiError.badRequest(
+          `Stok ${product.name} hanya tersisa ${available}`,
+          { includeSuccess: true }
+        );
+      }
+    }
   }
 
   async #increaseSales(items) {

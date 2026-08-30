@@ -17,6 +17,7 @@ import {
   Droplets,
   CheckCircle2,
   ShoppingBag,
+  PackageX,
 } from "lucide-react";
 
 import { api, getErrorMessage } from "@/lib/api";
@@ -35,6 +36,7 @@ export interface ShopProduct {
   image: string;
   description?: string;
   slug?: string;
+  stock?: number;
   hasDecant?: boolean;
   decants?: DecantOption[];
 }
@@ -65,6 +67,9 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
   const decants = product.decants ?? [];
   const canDecant = Boolean(product.hasDecant) && decants.length > 0;
 
+  const isOutOfStock =
+    typeof product.stock === "number" && product.stock <= 0;
+
   const [variant, setVariant] = useState<"full" | "decant">("full");
   const [size, setSize] = useState(decants[0]?.size ?? "");
 
@@ -86,6 +91,12 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isOutOfStock) {
+      toast.error("Maaf, produk ini sedang habis dan tidak dapat dipesan");
+
+      return;
+    }
 
     if (!name.trim() || !phone.trim() || !address.trim()) {
       toast.error("Lengkapi nama, nomor telepon, dan alamat terlebih dahulu");
@@ -192,6 +203,27 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
           invoice ? "pointer-events-none max-h-0 overflow-hidden opacity-0" : "max-h-[2000px] opacity-100"
         }`}
       >
+        {isOutOfStock ? (
+          <div className="flex flex-col items-center rounded-2xl border border-red-200 bg-red-50 px-6 py-10 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-red-500">
+              <PackageX size={28} />
+            </div>
+
+            <h3 className="mt-4 text-lg font-semibold text-black">
+              Stok Habis
+            </h3>
+
+            <p className="mt-2 max-w-xs text-sm leading-6 text-neutral-600">
+              Mohon maaf, produk{" "}
+              <span className="font-semibold">{product.name}</span> sedang
+              tidak tersedia dan belum dapat dipesan.
+            </p>
+
+            <p className="mt-3 text-xs text-neutral-400">
+              Silakan kembali lagi nanti setelah stok diisi ulang.
+            </p>
+          </div>
+        ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
       {/* Product variant (Full / Decant) */}
       {canDecant && (
@@ -485,6 +517,7 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
           : `Buat Pesanan · ${formatRupiah(orderPrice)}`}
       </button>
         </form>
+        )}
       </div>
     </div>
   );

@@ -95,6 +95,9 @@ export default function ProductDetailPage() {
     return Math.round(product.price * (1 - applicableDiscount.percentage / 100));
   }, [product, applicableDiscount]);
 
+  const isOutOfStock =
+    Boolean(product) && (product?.stock ?? 0) <= 0;
+
   const shopProduct: ShopProduct | null = useMemo(() => {
     if (!product) return null;
 
@@ -109,6 +112,7 @@ export default function ProductDetailPage() {
       image: product.image ?? "",
       description: product.description,
       slug: product.slug,
+      stock: product.stock,
       hasDecant: product.hasDecant,
       decants: product.decants,
     };
@@ -191,8 +195,14 @@ export default function ProductDetailPage() {
                     {product.sold} Terjual
                   </span>
 
-                  <span className="rounded-full bg-[#f8f8f8] px-3 py-1 text-xs text-neutral-500">
-                    Stok {product.stock}
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs ${
+                      isOutOfStock
+                        ? "bg-red-50 font-semibold text-red-600"
+                        : "bg-[#f8f8f8] text-neutral-500"
+                    }`}
+                  >
+                    {isOutOfStock ? "Stok Habis" : `Stok ${product.stock}`}
                   </span>
                 </div>
 
@@ -244,11 +254,20 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={() => setShowOrder((v) => !v)}
-                  className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-black px-8 py-4 text-sm font-semibold text-white transition hover:scale-105 hover:bg-neutral-800"
+                  disabled={isOutOfStock}
+                  className={`mt-10 flex w-full items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-semibold transition ${
+                    isOutOfStock
+                      ? "cursor-not-allowed bg-neutral-300 text-neutral-500"
+                      : "bg-black text-white hover:scale-105 hover:bg-neutral-800"
+                  }`}
                 >
                   <ShoppingBag size={18} />
 
-                  {showOrder ? "Tutup Formulir Pemesanan" : "Beli Sekarang"}
+                  {isOutOfStock
+                    ? "Stok Habis"
+                    : showOrder
+                      ? "Tutup Formulir Pemesanan"
+                      : "Beli Sekarang"}
                 </button>
 
                 {showOrder && shopProduct && (

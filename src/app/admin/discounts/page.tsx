@@ -11,7 +11,10 @@ import {
   ToggleRight,
   Search,
   PackageSearch,
+  X,
 } from "lucide-react";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import DashboardLayout from "@/components/admin/DashboardLayout";
 import PageHeader from "@/components/admin/PageHeader";
@@ -72,6 +75,10 @@ export default function DiscountsPage() {
 
     return found?.name || "Produk tidak ditemukan";
   };
+
+  const selectedProduct = productId
+    ? products.find((p) => p._id === productId)
+    : undefined;
 
   const handleAdd = async (e: FormEvent) => {
     e.preventDefault();
@@ -202,21 +209,74 @@ export default function DiscountsPage() {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700">
-                  Produk (opsional)
-                </label>
-                <select
-                  value={productId}
-                  onChange={(e) => setProductId(e.target.value)}
-                  className="h-12 w-full rounded-2xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 outline-none transition focus:border-neutral-400"
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <label className="block text-sm font-medium text-neutral-700">
+                    Produk (opsional)
+                  </label>
+
+                  {productId && (
+                    <button
+                      type="button"
+                      onClick={() => setProductId("")}
+                      className="flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-xs text-neutral-500 transition hover:text-red-500"
+                    >
+                      <X size={13} />
+                      Kosongkan
+                    </button>
+                  )}
+                </div>
+
+                <Select
+                  value={productId || undefined}
+                  onValueChange={setProductId}
                 >
-                  <option value="">Semua Produk</option>
-                  {products.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="h-12 w-full rounded-2xl px-4">
+                    <SelectValue placeholder="Semua Produk" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {products.length === 0 && (
+                      <div className="px-3 py-2 text-sm text-neutral-500">
+                        Belum ada produk
+                      </div>
+                    )}
+
+                    {products.map((p) => (
+                      <SelectItem key={p._id} value={p._id}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {selectedProduct && (
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl border border-neutral-100 bg-[#f8f8f8] p-3">
+                    {selectedProduct.image ? (
+                      <img
+                        src={selectedProduct.image}
+                        alt={selectedProduct.name}
+                        className="h-12 w-12 rounded-xl object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-200 text-neutral-400">
+                        <Package size={18} />
+                      </div>
+                    )}
+
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-black">
+                        {selectedProduct.name}
+                      </p>
+
+                      <p className="text-xs text-neutral-500">
+                        {typeof selectedProduct.category === "object" &&
+                        selectedProduct.category
+                          ? selectedProduct.category.name
+                          : "Tanpa kategori"}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-end">

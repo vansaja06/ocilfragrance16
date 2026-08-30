@@ -39,10 +39,13 @@ export default function JustIn() {
     [data]
   );
 
-  const categories = useMemo(
-    () => ["All", ...Array.from(new Set(products.map((p) => p.category)))],
-    [products]
-  );
+  const categories = useMemo(() => {
+    const unique = Array.from(new Set(products.map((p) => p.category)));
+    const tags = unique.filter((c) => c !== "Lainnya");
+    const others = unique.includes("Lainnya") ? ["Lainnya"] : [];
+
+    return [...tags, ...others, "All"];
+  }, [products]);
 
   const [active, setActive] = useState("All");
 

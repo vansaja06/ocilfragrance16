@@ -9,6 +9,7 @@ import {
   Settings,
   Crown,
   Percent,
+  Zap,
 } from "lucide-react";
 
 export const menus = [
@@ -46,6 +47,12 @@ export const menus = [
     title: "Diskon",
     href: "/admin/discounts",
     icon: Percent,
+  },
+
+  {
+    title: "Limited Offer",
+    href: "/admin/limited-offer",
+    icon: Zap,
   },
 
   {
