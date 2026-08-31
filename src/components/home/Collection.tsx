@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 import { useFetch } from "@/lib/useFetch";
 import { api } from "@/lib/api";
@@ -31,6 +32,9 @@ interface CollectionCard {
   image: string;
   product: Product | null;
 }
+
+const BLUR_PLACEHOLDER =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 export default function Collection() {
   const router = useRouter();
@@ -132,7 +136,6 @@ export default function Collection() {
       className="bg-white py-16 md:py-20 lg:py-24 mb-20 md:mb-32"
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
-        {/* TITLE */}
 
         <div className="text-center mb-12 md:mb-20">
           <p className="uppercase tracking-[0.35em] text-neutral-500 text-sm">
@@ -144,34 +147,19 @@ export default function Collection() {
           </h2>
         </div>
 
-        {/* GRID */}
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT */}
 
-          <div
-            className="
-              relative
-              rounded-3xl
-              overflow-hidden
-              group
-              h-[450px]
-              md:h-[600px]
-              lg:h-auto
-            "
-          >
+          <div className="relative rounded-3xl overflow-hidden group h-[450px] md:h-[600px] lg:h-auto">
             {left.image ? (
-              <img
+              <Image
                 src={left.image}
                 alt={left.title}
-                className="
-                  w-full
-                  h-full
-                  object-cover
-                  transition-transform
-                  duration-700
-                  group-hover:scale-110
-                "
+                fill
+                loading="lazy"
+                sizes="(max-width: 1024px) 100vw, 33vw"
+                placeholder="blur"
+                blurDataURL={BLUR_PLACEHOLDER}
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
               />
             ) : (
               <div className="w-full h-full bg-neutral-100" />
@@ -189,33 +177,30 @@ export default function Collection() {
               <button
                 onClick={() => handleCardClick(left)}
                 className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105"
+                aria-label={`Beli ${left.title}`}
               >
                 Shop Now
               </button>
             </div>
           </div>
 
-          {/* RIGHT */}
-
           <div className="grid gap-6 lg:col-span-2 lg:grid-rows-[1.2fr_1fr]">
-            {/* TOP */}
 
-            <div
-              className="relative rounded-3xl overflow-hidden group h-[350px] md:h-[450px]"
+            <button
               onClick={() => handleCardClick(topRight)}
+              className="relative rounded-3xl overflow-hidden group h-[350px] md:h-[450px] text-left w-full"
+              aria-label={`Jelajahi ${topRight.title}`}
             >
               {topRight.image ? (
-                <img
+                <Image
                   src={topRight.image}
                   alt={topRight.title}
-                  className="
-                    w-full
-                    h-full
-                    object-cover
-                    transition-transform
-                    duration-700
-                    group-hover:scale-110
-                  "
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  placeholder="blur"
+                  blurDataURL={BLUR_PLACEHOLDER}
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               ) : (
                 <div className="w-full h-full bg-neutral-100" />
@@ -232,34 +217,25 @@ export default function Collection() {
                   {topRight.title}
                 </h3>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-
-                    handleCardClick(topRight);
-                  }}
-                  className="mt-8 rounded-full bg-white px-7 py-3 text-black transition hover:scale-105"
-                >
+                <span className="mt-8 inline-block rounded-full bg-white px-7 py-3 text-black transition group-hover:scale-105">
                   Explore
-                </button>
+                </span>
               </div>
-            </div>
-
-            {/* BOTTOM */}
+            </button>
 
             <div
               className={`grid gap-6 ${showPromo ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}
             >
-              {/* DECANT */}
 
-              <div
-                className={`rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between cursor-pointer ${
+              <button
+                onClick={() => handleCardClick(bottomLeft)}
+                className={`rounded-3xl bg-[#f8f8f8] p-8 flex flex-col justify-between text-left w-full ${
                   showPromo ? "" : "md:col-span-2"
                 }`}
-                onClick={() => handleCardClick(bottomLeft)}
+                aria-label={`Lihat ${bottomLeft.title}`}
               >
                 <div>
-                  <p className="text-xs tracking-[0.35em] text-neutral-400">
+                  <p className="text-xs tracking-[0.35em] text-neutral-500">
                     {bottomLeft.subtitle}
                   </p>
 
@@ -267,65 +243,45 @@ export default function Collection() {
                     {bottomLeft.title}
                   </h3>
 
-                  <p className="mt-5 text-neutral-500 line-clamp-3">
+                  <p className="mt-5 text-neutral-600 line-clamp-3">
                     {bottomLeft.product?.description ||
                       "Experience luxury fragrances in 5ml, 10ml and 30ml sizes."}
                   </p>
                 </div>
 
                 <div className="flex justify-between items-end mt-8">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-
-                      handleCardClick(bottomLeft);
-                    }}
-                    className="underline underline-offset-4"
-                  >
+                  <span className="underline underline-offset-4">
                     Browse
-                  </button>
+                  </span>
 
                   {bottomLeft.image ? (
-                    <img
+                    <Image
                       src={bottomLeft.image}
                       alt={bottomLeft.title}
-                      className="
-                        w-32
-                        md:w-40
-                        object-contain
-                        transition-all
-                        duration-500
-                        hover:scale-110
-                      "
+                      width={160}
+                      height={160}
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL={BLUR_PLACEHOLDER}
+                      className="object-contain transition-all duration-500 hover:scale-110 w-32 md:w-40"
                     />
                   ) : null}
                 </div>
-              </div>
-
-              {/* PROMO — hanya untuk subscriber */}
+              </button>
 
               {showPromo ? (
                 <div
-                  className="
-                    rounded-3xl
-                    bg-gradient-to-br
-                    from-black
-                    to-neutral-800
-                    text-white
-                    flex
-                    flex-col
-                    justify-center
-                    items-center
-                    py-14
-                  "
+                  className="rounded-3xl bg-gradient-to-br from-black to-neutral-800 text-white flex flex-col justify-center items-center py-14"
+                  role="region"
+                  aria-label="Penawaran terbatas"
                 >
                   <p className="uppercase tracking-[0.3em] text-sm text-neutral-300">
                     {promo?.label || "Limited Offer"}
                   </p>
 
-                  <h1 className="text-6xl font-bold my-4">
+                  <p className="text-6xl font-bold my-4">
                     {promo?.discountText || "30%"}
-                  </h1>
+                  </p>
 
                   <p className="text-neutral-300 mb-8">
                     {promo?.description ||

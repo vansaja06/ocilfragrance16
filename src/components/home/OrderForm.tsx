@@ -308,7 +308,9 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
             className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
           />
 
+          <label htmlFor="order-name" className="sr-only">Nama Lengkap</label>
           <input
+            id="order-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nama Lengkap"
@@ -322,7 +324,9 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
             className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
           />
 
+          <label htmlFor="order-phone" className="sr-only">No. Telepon / WhatsApp</label>
           <input
+            id="order-phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="No. Telepon / WhatsApp"
@@ -336,7 +340,9 @@ export default function OrderForm({ product, onSuccess }: OrderFormProps) {
             className="absolute left-4 top-4 text-neutral-400"
           />
 
+          <label htmlFor="order-address" className="sr-only">Alamat Lengkap</label>
           <textarea
+            id="order-address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Alamat Lengkap"

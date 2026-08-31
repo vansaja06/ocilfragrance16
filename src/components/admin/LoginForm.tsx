@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
@@ -100,6 +99,7 @@ export default function LoginForm() {
             type="button"
             className="absolute right-5 top-1/2 -translate-y-1/2"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
           >
             {showPassword ? (
               <EyeOff size={18}/>
@@ -136,31 +136,6 @@ export default function LoginForm() {
         className="w-full h-14 rounded-full"
       >
         {loading ? "Loading..." : "Login"}
-      </Button>
-
-      {/* Divider */}
-
-      <div className="flex items-center gap-4">
-
-        <div className="h-px flex-1 bg-gray-300"/>
-
-        <span>OR</span>
-
-        <div className="h-px flex-1 bg-gray-300"/>
-
-      </div>
-
-      {/* GOOGLE */}
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full h-14 rounded-full"
-      >
-        <FcGoogle className="mr-2"/>
-
-        Continue with Google
-
       </Button>
 
     </form>

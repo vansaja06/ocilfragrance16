@@ -3,16 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-import { useFetch } from "@/lib/useFetch";
+import { useHomeData } from "@/context/HomeDataContext";
 import { formatRupiah } from "@/lib/format";
 import { Product } from "@/lib/types";
 
 import { ShopProduct } from "./OrderForm";
-
-interface ProductsResponse {
-  products: Product[];
-}
 
 const mapProduct = (product: Product): ShopProduct => ({
   _id: product._id,
@@ -32,11 +29,11 @@ const mapProduct = (product: Product): ShopProduct => ({
 export default function JustIn() {
   const router = useRouter();
 
-  const { data } = useFetch<ProductsResponse>("/products");
+  const { products: homeProducts } = useHomeData();
 
   const products: ShopProduct[] = useMemo(
-    () => (data?.products ?? []).map(mapProduct),
-    [data]
+    () => (homeProducts ?? []).map(mapProduct),
+    [homeProducts]
   );
 
   const categories = useMemo(() => {
@@ -78,7 +75,6 @@ export default function JustIn() {
   return (
     <section id="just-in" className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
-        {/* HEADER */}
 
         <div className="text-center">
           <p className="text-sm uppercase tracking-[0.4em] text-neutral-500">
@@ -94,13 +90,12 @@ export default function JustIn() {
           </p>
         </div>
 
-        {/* CATEGORY */}
-
-        <div className="mt-12 flex flex-wrap justify-center gap-6">
+        <div className="mt-12 flex flex-wrap justify-center gap-6" role="group" aria-label="Filter kategori">
           {categories.map((item) => (
             <button
               key={item}
               onClick={() => setActive(item)}
+              aria-pressed={active === item}
               className={`relative pb-2 text-sm uppercase tracking-[0.25em] transition-all duration-300 ${
                 active === item
                   ? "text-black"
@@ -118,21 +113,23 @@ export default function JustIn() {
           ))}
         </div>
 
-        {/* PRODUCT */}
-
         <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {filteredProducts.map((item) => (
             <button
               key={item._id}
               onClick={() => router.push(`/product/${item.slug || item._id}`)}
               className="group cursor-pointer text-left"
+              aria-label={`Lihat ${item.name}`}
             >
               <div className="relative overflow-hidden rounded-2xl bg-neutral-100 aspect-[3/4]">
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition duration-700 group-hover:scale-110"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-neutral-300">
@@ -150,7 +147,7 @@ export default function JustIn() {
               </div>
 
               <div className="mt-5">
-                <p className="text-xs uppercase tracking-[0.25em] text-neutral-400">
+                <p className="text-xs uppercase tracking-[0.25em] text-neutral-500">
                   {item.category}
                 </p>
 

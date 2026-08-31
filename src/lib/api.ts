@@ -5,15 +5,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  if (config.method?.toLowerCase() === "get" && config.url) {
-    const separator = config.url.includes("?") ? "&" : "?";
 
-    config.url = `${config.url}${separator}_t=${Date.now()}`;
-  }
-
-  return config;
-});
 
 export function getErrorMessage(
   error: unknown,

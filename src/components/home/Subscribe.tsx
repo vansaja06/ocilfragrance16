@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 
 import { api, getErrorMessage } from "@/lib/api";
-import { useFetch } from "@/lib/useFetch";
 import { formatRupiah } from "@/lib/format";
 import {
   clearSubscriberEmail,
@@ -22,18 +21,14 @@ import {
   setSubscriberEmail,
 } from "@/lib/subscription";
 import ImageUpload from "@/components/admin/ImageUpload";
-import { Settings } from "@/lib/types";
-
-interface SettingsResponse {
-  settings: Settings;
-}
+import { useHomeData } from "@/context/HomeDataContext";
 
 const inputClass =
   "h-12 w-full rounded-2xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition focus:border-neutral-400";
 
 export default function Subscribe() {
-  const { data } = useFetch<SettingsResponse>("/settings");
-  const settings = data?.settings ?? {};
+  const { settings: homeSettings } = useHomeData();
+  const settings = homeSettings ?? {};
 
   const [step, setStep] = useState<"email" | "payment" | "pending" | "active">(
     "email"
@@ -329,7 +324,9 @@ export default function Subscribe() {
             className="mt-12 flex justify-center sm:mt-14"
           >
             <div className="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-gray-200 shadow-sm sm:flex-row sm:rounded-full">
+              <label htmlFor="subscribe-email" className="sr-only">Email</label>
               <input
+                id="subscribe-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -363,10 +360,11 @@ export default function Subscribe() {
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-medium text-neutral-800">
+                <label htmlFor="sub-name" className="mb-2 text-sm font-medium text-neutral-800">
                   Nama Lengkap
-                </p>
+                </label>
                 <input
+                  id="sub-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -376,10 +374,11 @@ export default function Subscribe() {
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-medium text-neutral-800">
+                <label htmlFor="sub-phone" className="mb-2 text-sm font-medium text-neutral-800">
                   No. Telepon / WhatsApp
-                </p>
+                </label>
                 <input
+                  id="sub-phone"
                   type="text"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}

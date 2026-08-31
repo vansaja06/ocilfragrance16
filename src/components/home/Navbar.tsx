@@ -6,21 +6,13 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { Search, ShoppingBag, User, Menu, X, PackageSearch } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { useFetch } from "@/lib/useFetch";
 import { formatRupiah } from "@/lib/format";
 import { getLocalOrders } from "@/lib/orders";
 import { onCartChanged } from "@/lib/dataEvents";
-import { Product, Settings } from "@/lib/types";
+import { Product } from "@/lib/types";
+import { useHomeData } from "@/context/HomeDataContext";
 
 gsap.registerPlugin(ScrollToPlugin);
-
-interface SettingsResponse {
-  settings: Settings;
-}
-
-interface ProductsResponse {
-  products: Product[];
-}
 
 const menus = [
   { title: "ocilfragrance16", id: "shop", brand: true },
@@ -36,12 +28,11 @@ const glass =
 export default function Navbar() {
   const router = useRouter();
 
-  const { data: settingsData } = useFetch<SettingsResponse>("/settings");
-  const { data: productData } = useFetch<ProductsResponse>("/products");
+  const { settings: homeSettings, products: homeProducts } = useHomeData();
 
   const storeName =
-    settingsData?.settings?.storeName?.trim() || "ocilfragrance16";
-  const products = useMemo(() => productData?.products ?? [], [productData]);
+    homeSettings?.storeName?.trim() || "ocilfragrance16";
+  const products = useMemo(() => homeProducts ?? [], [homeProducts]);
 
   const [openSearch, setOpenSearch] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -414,6 +405,7 @@ export default function Navbar() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               placeholder="Search Product..."
+              aria-label="Cari produk"
               className="w-full bg-transparent outline-none text-sm text-black"
             />
 
@@ -425,13 +417,13 @@ export default function Navbar() {
         <div className="flex items-center gap-3 lg:gap-6">
           {/* DESKTOP ICON */}
           <div className="hidden lg:flex items-center gap-6 text-black">
-            <button onClick={toggleSearch}>
+            <button onClick={toggleSearch} aria-label="Cari produk" aria-expanded={openSearch}>
               <Search size={20} />
             </button>
 
             {cartButton}
 
-            <button onClick={() => router.push("/admin/login")}>
+            <button onClick={() => router.push("/admin/login")} aria-label="Masuk admin">
               <User
                 size={20}
                 className="transition-transform duration-300 hover:scale-110"
@@ -442,13 +434,13 @@ export default function Navbar() {
           {/* MOBILE ICON */}
           {!mobileMenu && (
             <div className="flex lg:hidden items-center gap-3 text-black">
-              <button onClick={toggleSearch}>
+              <button onClick={toggleSearch} aria-label="Cari produk" aria-expanded={openSearch}>
                 <Search size={20} />
               </button>
 
               {cartButton}
 
-              <button onClick={() => router.push("/admin/login")}>
+              <button onClick={() => router.push("/admin/login")} aria-label="Masuk admin">
                 <User
                   size={20}
                   className="transition-transform duration-300 hover:scale-110"
@@ -460,6 +452,8 @@ export default function Navbar() {
           {/* MENU / X */}
           <button
             onClick={() => setMobileMenu((prev) => !prev)}
+            aria-label={mobileMenu ? "Tutup menu" : "Buka menu"}
+            aria-expanded={mobileMenu}
             className="lg:hidden flex items-center justify-center w-10 h-10 text-black"
           >
             {mobileMenu ? <X size={20} /> : <Menu size={22} />}
@@ -481,6 +475,7 @@ export default function Navbar() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               placeholder="Search Product..."
+              aria-label="Cari produk"
               className="w-full outline-none text-sm bg-transparent text-black"
             />
 
